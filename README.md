@@ -18,7 +18,7 @@ Or grab a binary from [the latest release](https://github.com/stefanlogue/meteor
 
 ## Customisation
 
-You can customise the options available by creating a `.meteor.json` in the root of your repository, or in your home directory. The repository-level config will be preferred if it exists.
+You can customise the options available by creating a `.meteor.json` file anywhere in the directory tree (at or above the current working directory). The config file closest to the current working directory will be preferred. This enables you to have different configs for different parent directories, such as one for your personal work, one for your actual work, one for open source work etc.
 
 The content should be in the following format:
 
