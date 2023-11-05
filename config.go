@@ -91,17 +91,26 @@ func loadConfigFile(path string) ([]list.Item, []list.Item, []list.Item, error) 
 }
 
 func loadConfig() ([]list.Item, []list.Item, []list.Item, error) {
-	if _, err := os.Open(configFile); err == nil {
-		return loadConfigFile(configFile)
+	basePath, err := os.UserHomeDir()
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("error getting home dir: %w", err)
 	}
-	if home, err := os.UserHomeDir(); err == nil {
-		path := filepath.Join(home, configFile)
-		if _, err := os.Open(path); err == nil {
-			return loadConfigFile(path)
+	targetPath, err := os.Getwd()
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("error getting current dir: %w", err)
+	}
+	for {
+		rel, _ := filepath.Rel(basePath, targetPath)
+		if rel == basePath {
+			break
 		}
-	}
-	if _, err := os.Open(configFile); err == nil {
-		return loadConfigFile(configFile)
+		filePath := filepath.Join(targetPath, configFile)
+		if _, err := os.Open(filePath); err == nil {
+			fmt.Println("Found config file at", filePath)
+			return loadConfigFile(filePath)
+		}
+
+		targetPath += "/.."
 	}
 	return defaultPrefixes, nil, nil, nil
 }
