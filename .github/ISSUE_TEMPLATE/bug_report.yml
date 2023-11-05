@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: >
-        #### Before submitting a bug, please make sure the issue hasn't been already addressed by searching through [the existing and past issues](https://github.com/stefanlogue/hydrate.nvim/issues?q=is%3Aissue+sort%3Acreated-desc+).
+        #### Before submitting a bug, please make sure the issue hasn't been already addressed by searching through [the existing and past issues](https://github.com/stefanlogue/meteor/issues?q=is%3Aissue+sort%3Acreated-desc+).
   - type: textarea
     attributes:
       label: 🐛 Describe the bug
