@@ -6,8 +6,6 @@
 
 You can call `meteor` where you'd normally type `git commit`. All flags supported in `git commit` will still work.
 
-![Demo](demo.png)
-
 ## Installation
 
 Install with Go (1.21+):
