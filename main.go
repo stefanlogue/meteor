@@ -27,11 +27,9 @@ func main() {
 	}
 
 	m := newModel(boards, prefixes, coauthors)
-	p := tea.NewProgram(m, tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
+	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fail("Error: %s", err)
 	}
-
 	fmt.Println("")
 
 	if !m.Finished() {

@@ -68,11 +68,11 @@ type Model struct {
 	quitting                bool
 }
 
-func (m Model) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) Model {
+func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) *Model {
 	var boardList list.Model
 	var ticketInput textinput.Model
 	hasBoards := false
@@ -124,7 +124,7 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) M
 	cml := textarea.New()
 	cml.Placeholder = "longer commit message"
 
-	return Model{
+	return &Model{
 		boardList:               boardList,
 		prefixList:              prefixList,
 		coauthorList:            colist,
@@ -137,7 +137,7 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) M
 	}
 }
 
-func (m Model) updateBoardList(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) updateBoardList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
@@ -179,7 +179,7 @@ func (m Model) updateBoardList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) updatePrefixList(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) updatePrefixList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
@@ -228,7 +228,7 @@ func buildCoauthorsString(coauthors []coauthor) string {
 	return s
 }
 
-func (m Model) updateCoauthorList(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) updateCoauthorList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
@@ -260,7 +260,6 @@ func (m Model) updateCoauthorList(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.hasSelectedCoauthors = true
 			m.coauthorsString = buildCoauthorsString(m.selectedCoauthors)
 			m.commitMessageLong += m.coauthorsString
-			m.finished = true
 		}
 	}
 	var cmd tea.Cmd
@@ -268,7 +267,7 @@ func (m Model) updateCoauthorList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) updateTicketNumberInput(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) updateTicketNumberInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
@@ -287,7 +286,7 @@ func (m Model) updateTicketNumberInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) updateCommitMessageShortInput(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) updateCommitMessageShortInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
@@ -306,17 +305,16 @@ func (m Model) updateCommitMessageShortInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) updateCommitMessageLongInput(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) updateCommitMessageLongInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlD, tea.KeyEsc:
 			m.commitMessageLong = m.commitMessageLongInput.Value()
 			m.hasCommitMessageLong = true
-			if !m.hasCoauthors {
-				m.finished = true
-			}
-			return m, nil
+			m.finished = true
+			m.quitting = true
+			return m, tea.Quit
 		case tea.KeyCtrlC:
 			m.quitting = true
 			return m, tea.Quit
@@ -327,7 +325,7 @@ func (m Model) updateCommitMessageLongInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
@@ -351,26 +349,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateTicketNumberInput(msg)
 	case !m.hasSelectedPrefix:
 		return m.updatePrefixList(msg)
+	case m.hasCoauthors && !m.hasSelectedCoauthors:
+		return m.updateCoauthorList(msg)
 	case !m.hasCommitMessageShort:
 		return m.updateCommitMessageShortInput(msg)
 	case !m.hasCommitMessageLong:
 		return m.updateCommitMessageLongInput(msg)
-	case m.hasCoauthors && !m.hasSelectedCoauthors:
-		return m.updateCoauthorList(msg)
 	default:
 		return m, tea.Quit
 	}
 }
 
-func (m Model) CommitMessage() (string, string) {
+func (m *Model) CommitMessage() (string, string) {
 	return m.commitMessageShort, m.commitMessageLong
 }
 
-func (m Model) Finished() bool {
-	return m.finished
+func (m *Model) Finished() bool {
+	return m.hasCommitMessageShort
 }
 
-func (m Model) View() string {
+func (m *Model) View() string {
 	s := ""
 	switch {
 	case m.hasBoards && !m.hasSelectedBoard:
@@ -380,12 +378,10 @@ func (m Model) View() string {
 		s = lipgloss.NewStyle().MarginLeft(2).Render(lipgloss.JoinVertical(lipgloss.Top, title, inputStyle.MarginTop(1).Render(m.ticketNumberInput.View())))
 	case !m.hasSelectedPrefix:
 		s = lipgloss.JoinVertical(lipgloss.Top, m.prefixList.View())
-	case !m.hasCommitMessageShort, !m.hasCommitMessageLong:
-		s = lipgloss.JoinVertical(lipgloss.Top, m.commitMessageShortInput.View(), " ", m.commitMessageLongInput.View())
 	case m.hasCoauthors && !m.hasSelectedCoauthors:
 		s = lipgloss.JoinVertical(lipgloss.Top, m.coauthorList.View())
-	case m.quitting:
-		s = "Goodbye!"
+	case !m.hasCommitMessageShort, !m.hasCommitMessageLong:
+		s = lipgloss.JoinVertical(lipgloss.Top, m.commitMessageShortInput.View(), " ", m.commitMessageLongInput.View())
 	}
 	return s
 }
