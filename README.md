@@ -6,6 +6,8 @@
 
 You can call `meteor` where you'd normally type `git commit`. All flags supported in `git commit` will still work.
 
+![Demo](demos/demo-without-boards.gif)
+
 ## Installation
 
 Install with Go (1.21+):
@@ -19,6 +21,8 @@ Or grab a binary from [the latest release](https://github.com/stefanlogue/meteor
 ## Customisation
 
 You can customise the options available by creating a `.meteor.json` file anywhere in the directory tree (at or above the current working directory). The config file closest to the current working directory will be preferred. This enables you to have different configs for different parent directories, such as one for your personal work, one for your actual work, one for open source work etc.
+
+![Demo with boards](demos/demo-with-boards.gif)
 
 The content should be in the following format:
 

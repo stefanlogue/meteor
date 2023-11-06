@@ -1,3 +1,5 @@
+.DS_Store
 dist/
+*.mov
 .venv/
 .meteor.json
