@@ -1,13 +1,33 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+func isFlagPassed(name string) bool {
+	found := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == name {
+			found = true
+		}
+	})
+	return found
+}
+
 func main() {
+	version := "dev"
+
+	flag.Bool("v", false, "show version")
+	flag.Parse()
+	if isFlagPassed("v") {
+		fmt.Printf("meteor version %s\n", version)
+		os.Exit(0)
+	}
+
 	if err := checkGitInPath(); err != nil {
 		fail("Error: %s", err)
 	}
