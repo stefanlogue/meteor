@@ -17,9 +17,12 @@ const (
 )
 
 var (
-	titleStyle lipgloss.Style
-	docStyle   = lipgloss.NewStyle().Margin(1, 2)
-	inputStyle = lipgloss.NewStyle().
+	titleStyle      lipgloss.Style
+	promptStyle     = lipgloss.NewStyle().Margin(1, 0, 0, 0)
+	selectedStyle   = lipgloss.NewStyle().Background(lipgloss.Color("212")).Foreground(lipgloss.Color("230")).Padding(0, 3).Margin(1, 1)
+	unselectedStyle = lipgloss.NewStyle().Background(lipgloss.Color("235")).Foreground(lipgloss.Color("254")).Padding(0, 3).Margin(1, 1)
+	docStyle        = lipgloss.NewStyle().Margin(1, 2)
+	inputStyle      = lipgloss.NewStyle().
 			BorderForeground(lipgloss.Color("#F48F0B")).
 			BorderStyle(lipgloss.RoundedBorder()).
 			Padding(1)
@@ -49,6 +52,7 @@ type Model struct {
 	commitMessageShortInput textinput.Model
 	ticketNumberInput       textinput.Model
 	selectedBoard           string
+	breakingChangePrompt    string
 	coauthorsString         string
 	commitMessageShort      string
 	commitMessageLong       string
@@ -56,8 +60,10 @@ type Model struct {
 	ticketNumber            string
 	selectedCoauthorsString string
 	selectedCoauthors       []coauthor
+	confirmation            bool
 	finished                bool
 	hasBoards               bool
+	hasBreakingChange       bool
 	hasCoauthors            bool
 	hasCommitMessageShort   bool
 	hasCommitMessageLong    bool
@@ -66,6 +72,7 @@ type Model struct {
 	hasSelectedCoauthors    bool
 	hasSelectedPrefix       bool
 	hasTicketNumber         bool
+	isBreakingChange        bool
 	quitting                bool
 }
 
@@ -135,6 +142,8 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) *
 		selectedCoauthorsString: "selected: ",
 		hasBoards:               hasBoards,
 		hasCoauthors:            hasCoauthors,
+		isBreakingChange:        false,
+		breakingChangePrompt:    "Is this a breaking change? (y/n)",
 	}
 }
 
@@ -201,12 +210,6 @@ func (m *Model) updatePrefixList(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if ok {
 				m.selectedPrefix = i.T
 				m.hasSelectedPrefix = true
-				if !m.hasBoards {
-					m.commitMessageShortInput.SetValue(fmt.Sprintf("%s: ", m.selectedPrefix))
-				} else {
-					m.commitMessageShortInput.SetValue(fmt.Sprintf("%s: <%s> ", m.ticketNumber, m.selectedPrefix))
-				}
-				m.commitMessageShortInput.Focus()
 			}
 		}
 	}
@@ -309,6 +312,63 @@ func (m *Model) updateTicketNumberInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m *Model) updateBreakingChange(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		return m, nil
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			m.confirmation = false
+			m.quitting = true
+			return m, tea.Quit
+		case "n", "N":
+			m.confirmation = false
+			m.isBreakingChange = false
+			m.hasBreakingChange = true
+			if !m.hasBoards {
+				m.commitMessageShortInput.SetValue(fmt.Sprintf("%s: ", m.selectedPrefix))
+			} else {
+				m.commitMessageShortInput.SetValue(fmt.Sprintf("%s: <%s> ", m.ticketNumber, m.selectedPrefix))
+			}
+			m.commitMessageShortInput.Focus()
+			return m, nil
+		case "y", "Y":
+			m.confirmation = true
+			m.isBreakingChange = true
+			m.hasBreakingChange = true
+			if !m.hasBoards {
+				m.commitMessageShortInput.SetValue(fmt.Sprintf("%s!: ", m.selectedPrefix))
+			} else {
+				m.commitMessageShortInput.SetValue(fmt.Sprintf("%s: <%s!> ", m.ticketNumber, m.selectedPrefix))
+			}
+			m.commitMessageShortInput.Focus()
+			return m, nil
+		case "l", "h", "tab", "shift+tab", "left", "right", "ctrl+p", "ctrl+n":
+			m.confirmation = !m.confirmation
+		case "enter":
+			m.isBreakingChange = m.confirmation
+			m.hasBreakingChange = true
+			if !m.hasBoards {
+				if !m.isBreakingChange {
+					m.commitMessageShortInput.SetValue(fmt.Sprintf("%s: ", m.selectedPrefix))
+				} else {
+					m.commitMessageShortInput.SetValue(fmt.Sprintf("%s!: ", m.selectedPrefix))
+				}
+			} else {
+				if !m.isBreakingChange {
+					m.commitMessageShortInput.SetValue(fmt.Sprintf("%s: <%s> ", m.ticketNumber, m.selectedPrefix))
+				} else {
+					m.commitMessageShortInput.SetValue(fmt.Sprintf("%s: <%s!> ", m.ticketNumber, m.selectedPrefix))
+				}
+			}
+			m.commitMessageShortInput.Focus()
+			return m, nil
+		}
+	}
+	return m, nil
+}
+
 func (m *Model) updateCommitMessageShortInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -372,6 +432,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateTicketNumberInput(msg)
 	case !m.hasSelectedPrefix:
 		return m.updatePrefixList(msg)
+	case !m.hasBreakingChange:
+		return m.updateBreakingChange(msg)
 	case m.hasCoauthors && !m.hasSelectedCoauthors:
 		return m.updateCoauthorList(msg)
 	case !m.hasCommitMessageShort:
@@ -392,6 +454,15 @@ func (m *Model) Finished() bool {
 }
 
 func (m *Model) View() string {
+	var yes, no string
+	if m.confirmation {
+		yes = selectedStyle.Render("Yes")
+		no = unselectedStyle.Render("No")
+	} else {
+		yes = unselectedStyle.Render("Yes")
+		no = selectedStyle.Render("No")
+	}
+
 	s := ""
 	switch {
 	case m.hasBoards && !m.hasSelectedBoard:
@@ -401,6 +472,8 @@ func (m *Model) View() string {
 		s = lipgloss.NewStyle().MarginLeft(2).Render(lipgloss.JoinVertical(lipgloss.Top, title, inputStyle.MarginTop(1).Render(m.ticketNumberInput.View())))
 	case !m.hasSelectedPrefix:
 		s = lipgloss.JoinVertical(lipgloss.Top, m.prefixList.View())
+	case !m.hasBreakingChange:
+		s = lipgloss.JoinVertical(lipgloss.Center, promptStyle.Render(m.breakingChangePrompt), lipgloss.JoinHorizontal(lipgloss.Left, no, yes))
 	case m.hasCoauthors && !m.hasSelectedCoauthors:
 		s = lipgloss.JoinVertical(lipgloss.Top, m.coauthorList.View())
 	case !m.hasCommitMessageShort, !m.hasCommitMessageLong:
