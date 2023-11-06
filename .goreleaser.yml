@@ -22,7 +22,7 @@ archives:
 brews:
   - name: meteor
     homepage: https://github.com/stefanlogue/homebrew-tools
-    tap:
+    repository:
       owner: stefanlogue
       name: homebrew-tools
 release:
