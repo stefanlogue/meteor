@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -231,6 +232,15 @@ func buildCoauthorsString(coauthors []coauthor) string {
 	return s
 }
 
+func removeCoauthor(coauthors []coauthor, coauthor coauthor) []coauthor {
+	for i, c := range coauthors {
+		if c.Name == coauthor.Name {
+			return append(coauthors[:i], coauthors[i+1:]...)
+		}
+	}
+	return coauthors
+}
+
 func (m *Model) updateCoauthorList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -251,13 +261,23 @@ func (m *Model) updateCoauthorList(msg tea.Msg) (tea.Model, tea.Cmd) {
 			i, ok := m.coauthorList.SelectedItem().(coauthor)
 			if ok {
 				i.Selected = !i.Selected
-				m.selectedCoauthors = append(m.selectedCoauthors, i)
-				if len(m.selectedCoauthors) == 1 {
-					m.selectedCoauthorsString += i.Name
+				if i.Selected {
+					m.selectedCoauthors = append(m.selectedCoauthors, i)
 				} else {
-					m.selectedCoauthorsString += ", " + i.Name
+					m.selectedCoauthors = removeCoauthor(m.selectedCoauthors, i)
 				}
-				m.coauthorList.NewStatusMessage(statusMessageStyle(m.selectedCoauthorsString))
+				index := m.coauthorList.Index()
+				m.coauthorList.SetItem(index, i)
+				var coauthorNames []string
+				for _, coauthor := range m.selectedCoauthors {
+					coauthorNames = append(coauthorNames, coauthor.Name)
+				}
+				m.selectedCoauthorsString = strings.Join(coauthorNames, ", ")
+				if len(m.selectedCoauthors) == 0 {
+					m.coauthorList.NewStatusMessage(statusMessageStyle(""))
+				} else {
+					m.coauthorList.NewStatusMessage(statusMessageStyle(m.selectedCoauthorsString))
+				}
 			}
 		case "enter":
 			m.hasSelectedCoauthors = true
