@@ -64,6 +64,9 @@ func convertCoauthors(coauthors []coauthor) []list.Item {
 	if len(items) == 0 {
 		return nil
 	}
+	items = append(items, coauthor{})
+	copy(items[1:], items)
+	items[0] = coauthor{"None", "no coauthors", false}
 	return items
 }
 

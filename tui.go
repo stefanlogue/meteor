@@ -222,6 +222,9 @@ func buildCoauthorsString(coauthors []coauthor) string {
 	`
 	for _, coauthor := range coauthors {
 		if coauthor.Selected {
+			if coauthor.Name == "None" {
+				return ""
+			}
 			s += fmt.Sprintf("\nCo-authored-by: %s <%s>", coauthor.Name, coauthor.Email)
 		}
 	}
