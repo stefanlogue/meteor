@@ -19,6 +19,12 @@ archives:
   -
     format: binary
     name_template: "{{ .Binary}}-{{ .Os }}-{{ .Arch }}"
+brews:
+  - name: meteor
+    homepage: https://github.com/stefanlogue/homebrew-tools
+    tap:
+      owner: stefanlogue
+      name: homebrew-tools
 release:
   prerelease: auto
   github:
