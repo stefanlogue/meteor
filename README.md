@@ -9,7 +9,12 @@ You can call `meteor` where you'd normally type `git commit`. All flags supporte
 ![Demo](demos/demo-without-boards.gif)
 
 ## Installation
-
+### Homebrew
+```console
+brew tap stefanlogue/tools
+brew install meteor
+```
+### Go
 Install with Go (1.21+):
 
 ```console
