@@ -2,8 +2,6 @@ builds:
   - id: meteor
     main: .
     binary: meteor
-    ldflags:
-      - "-s -w"
     flags:
       - "--trimpath"
     env:
