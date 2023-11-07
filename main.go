@@ -18,9 +18,9 @@ func isFlagPassed(name string) bool {
 	return found
 }
 
-func main() {
-	version := "dev"
+var version = "dev"
 
+func main() {
 	flag.Bool("v", false, "show version")
 	flag.Parse()
 	if isFlagPassed("v") {
