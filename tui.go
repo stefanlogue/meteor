@@ -446,6 +446,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) CommitMessage() (string, string) {
+	m.commitMessageLong = m.commitMessageLong + m.coauthorsString
 	return m.commitMessageShort, m.commitMessageLong
 }
 
