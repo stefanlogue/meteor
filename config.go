@@ -104,7 +104,7 @@ func loadConfig() ([]list.Item, []list.Item, []list.Item, error) {
 	}
 	for {
 		rel, _ := filepath.Rel(basePath, targetPath)
-		if rel == basePath {
+		if rel == "." {
 			break
 		}
 		filePath := filepath.Join(targetPath, configFile)
