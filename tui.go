@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -43,37 +45,127 @@ func (c coauthor) Title() string       { return c.Name }
 func (c coauthor) Description() string { return c.Email }
 func (c coauthor) FilterValue() string { return c.Name }
 
+type coauthorListKeyMap struct {
+	selectItem key.Binding
+	accept     key.Binding
+	exit       key.Binding
+}
+
+func newCoauthorListKeyMap() *coauthorListKeyMap {
+	return &coauthorListKeyMap{
+		selectItem: key.NewBinding(
+			key.WithKeys(" "),
+			key.WithHelp("space", "select/deselect"),
+		),
+		accept: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "accept"),
+		),
+		exit: key.NewBinding(
+			key.WithKeys("ctrl+c", "esc", "q"),
+			key.WithHelp("ctrl+c/esc/q", "quit"),
+		),
+	}
+}
+
+type commitMessageShortInputKeyMap struct {
+	submit key.Binding
+	exit   key.Binding
+}
+
+func (c commitMessageShortInputKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{
+		c.submit,
+		c.exit,
+	}
+}
+
+func (c commitMessageShortInputKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		c.ShortHelp(),
+	}
+}
+
+func newCommitMessageShortInputKeyMap() *commitMessageShortInputKeyMap {
+	return &commitMessageShortInputKeyMap{
+		submit: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "submit"),
+		),
+		exit: key.NewBinding(
+			key.WithKeys("ctrl+c", "esc"),
+			key.WithHelp("ctrl+c/esc", "quit"),
+		),
+	}
+}
+
+type commitMessageLongInputKeyMap struct {
+	submit key.Binding
+	exit   key.Binding
+}
+
+func (c commitMessageLongInputKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{
+		c.submit,
+		c.exit,
+	}
+}
+
+func (c commitMessageLongInputKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		c.ShortHelp(),
+	}
+}
+
+func newCommitMessageLongInputKeyMap() *commitMessageLongInputKeyMap {
+	return &commitMessageLongInputKeyMap{
+		submit: key.NewBinding(
+			key.WithKeys("ctrl+d"),
+			key.WithHelp("ctrl+d", "submit"),
+		),
+		exit: key.NewBinding(
+			key.WithKeys("ctrl+c", "esc"),
+			key.WithHelp("ctrl+c/esc", "quit"),
+		),
+	}
+}
+
 /* Model */
 type Model struct {
-	boardList               list.Model
-	prefixList              list.Model
-	coauthorList            list.Model
-	commitMessageLongInput  textarea.Model
-	commitMessageShortInput textinput.Model
-	ticketNumberInput       textinput.Model
-	selectedBoard           string
-	breakingChangePrompt    string
-	coauthorsString         string
-	commitMessageShort      string
-	commitMessageLong       string
-	selectedPrefix          string
-	ticketNumber            string
-	selectedCoauthorsString string
-	selectedCoauthors       []coauthor
-	confirmation            bool
-	finished                bool
-	hasBoards               bool
-	hasBreakingChange       bool
-	hasCoauthors            bool
-	hasCommitMessageShort   bool
-	hasCommitMessageLong    bool
-	hasCommitted            bool
-	hasSelectedBoard        bool
-	hasSelectedCoauthors    bool
-	hasSelectedPrefix       bool
-	hasTicketNumber         bool
-	isBreakingChange        bool
-	quitting                bool
+	boardList                   list.Model
+	prefixList                  list.Model
+	coauthorList                list.Model
+	commitMessageLongInput      textarea.Model
+	commitMessageShortInput     textinput.Model
+	ticketNumberInput           textinput.Model
+	commitMessageLongInputHelp  help.Model
+	commitMessageShortInputHelp help.Model
+	coauthorListKeys            *coauthorListKeyMap
+	commitMessageShortInputKeys *commitMessageShortInputKeyMap
+	commitMessageLongInputKeys  *commitMessageLongInputKeyMap
+	selectedBoard               string
+	breakingChangePrompt        string
+	coauthorsString             string
+	commitMessageShort          string
+	commitMessageLong           string
+	selectedPrefix              string
+	ticketNumber                string
+	selectedCoauthorsString     string
+	selectedCoauthors           []coauthor
+	confirmation                bool
+	finished                    bool
+	hasBoards                   bool
+	hasBreakingChange           bool
+	hasCoauthors                bool
+	hasCommitMessageShort       bool
+	hasCommitMessageLong        bool
+	hasCommitted                bool
+	hasSelectedBoard            bool
+	hasSelectedCoauthors        bool
+	hasSelectedPrefix           bool
+	hasTicketNumber             bool
+	isBreakingChange            bool
+	quitting                    bool
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -85,6 +177,8 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) *
 	var ticketInput textinput.Model
 	hasBoards := false
 	hasCoauthors := false
+	commitShortKeys := newCommitMessageShortInputKeyMap()
+	commitLongKeys := newCommitMessageLongInputKeyMap()
 
 	if boards != nil {
 		hasBoards = true
@@ -92,6 +186,22 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) *
 		bDelegate := list.NewDefaultDelegate()
 		bDelegate.ShowDescription = false
 		boardList = list.New(boards, bDelegate, defaultWidth, listHeight)
+		boardList.AdditionalShortHelpKeys = func() []key.Binding {
+			return []key.Binding{
+				key.NewBinding(
+					key.WithKeys("enter"),
+					key.WithHelp("enter", "select"),
+				),
+			}
+		}
+		boardList.AdditionalFullHelpKeys = func() []key.Binding {
+			return []key.Binding{
+				key.NewBinding(
+					key.WithKeys("enter"),
+					key.WithHelp("enter", "select"),
+				),
+			}
+		}
 		boardList.Styles.Title = boardList.Styles.Title.Copy().Background(lipgloss.Color("#F48F0B"))
 		titleStyle = boardList.Styles.Title.Copy()
 		boardList.Title = "Select the JIRA board"
@@ -105,10 +215,18 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) *
 	}
 
 	var colist list.Model
+	coListKeys := newCoauthorListKeyMap()
 	if coauthors != nil {
 		hasCoauthors = true
 		// set up the co-authors list
 		coListDelegate := list.NewDefaultDelegate()
+		coListDelegate.ShortHelpFunc = func() []key.Binding {
+			return []key.Binding{
+				coListKeys.selectItem,
+				coListKeys.accept,
+				coListKeys.exit,
+			}
+		}
 		colist = list.New(coauthors, coListDelegate, defaultWidth, listHeight)
 		colist.Styles.Title = colist.Styles.Title.Copy().Background(lipgloss.Color("#F48F0B"))
 		colist.Title = "co-author(s)"
@@ -118,6 +236,22 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) *
 
 	// set up the prefixes list
 	prefixList := list.New(prefixes, list.NewDefaultDelegate(), defaultWidth, listHeight)
+	prefixList.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			key.NewBinding(
+				key.WithKeys("enter"),
+				key.WithHelp("enter", "select"),
+			),
+		}
+	}
+	prefixList.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			key.NewBinding(
+				key.WithKeys("enter"),
+				key.WithHelp("enter", "select"),
+			),
+		}
+	}
 	prefixList.Styles.Title = prefixList.Styles.Title.Copy().Background(lipgloss.Color("#F48F0B"))
 	prefixList.Title = "Select the type of change you're committing"
 	prefixList.SetShowStatusBar(false)
@@ -133,17 +267,22 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) *
 	cml.Placeholder = "longer commit message"
 
 	return &Model{
-		boardList:               boardList,
-		prefixList:              prefixList,
-		coauthorList:            colist,
-		ticketNumberInput:       ticketInput,
-		commitMessageShortInput: cms,
-		commitMessageLongInput:  cml,
-		selectedCoauthorsString: "selected: ",
-		hasBoards:               hasBoards,
-		hasCoauthors:            hasCoauthors,
-		isBreakingChange:        false,
-		breakingChangePrompt:    "Is this a breaking change? (y/n)",
+		boardList:                   boardList,
+		prefixList:                  prefixList,
+		coauthorList:                colist,
+		ticketNumberInput:           ticketInput,
+		commitMessageShortInput:     cms,
+		commitMessageLongInput:      cml,
+		selectedCoauthorsString:     "selected: ",
+		hasBoards:                   hasBoards,
+		hasCoauthors:                hasCoauthors,
+		isBreakingChange:            false,
+		breakingChangePrompt:        "Is this a breaking change? (y/n)",
+		coauthorListKeys:            coListKeys,
+		commitMessageLongInputHelp:  help.New(),
+		commitMessageShortInputHelp: help.New(),
+		commitMessageLongInputKeys:  commitLongKeys,
+		commitMessageShortInputKeys: commitShortKeys,
 	}
 }
 
@@ -255,16 +394,19 @@ func (m *Model) updateCoauthorList(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.coauthorList.FilterState() == list.Filtering {
 			break
 		}
-		switch msg.String() {
-		case "ctrl+c", "q":
+		switch {
+		case key.Matches(msg, m.coauthorListKeys.exit):
 			m.quitting = true
 			return m, tea.Quit
 
-		case " ":
+		case key.Matches(msg, m.coauthorListKeys.selectItem):
 			i, ok := m.coauthorList.SelectedItem().(coauthor)
 			if ok {
 				i.Selected = !i.Selected
 				if i.Selected {
+					if i.Name == "None" {
+						m.selectedCoauthors = []coauthor{}
+					}
 					m.selectedCoauthors = append(m.selectedCoauthors, i)
 				} else {
 					m.selectedCoauthors = removeCoauthor(m.selectedCoauthors, i)
@@ -282,10 +424,12 @@ func (m *Model) updateCoauthorList(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.coauthorList.NewStatusMessage(statusMessageStyle(m.selectedCoauthorsString))
 				}
 			}
-		case "enter":
+			return m, nil
+		case key.Matches(msg, m.coauthorListKeys.accept):
 			m.hasSelectedCoauthors = true
 			m.coauthorsString = buildCoauthorsString(m.selectedCoauthors)
 			m.commitMessageLong += m.coauthorsString
+			return m, nil
 		}
 	}
 	var cmd tea.Cmd
@@ -392,13 +536,13 @@ func (m *Model) updateCommitMessageLongInput(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyCtrlD, tea.KeyEsc:
+		case tea.KeyCtrlD:
 			m.commitMessageLong = m.commitMessageLongInput.Value()
 			m.hasCommitMessageLong = true
 			m.finished = true
 			m.quitting = true
 			return m, tea.Quit
-		case tea.KeyCtrlC:
+		case tea.KeyCtrlC, tea.KeyEsc:
 			m.quitting = true
 			return m, tea.Quit
 		}
@@ -464,6 +608,9 @@ func (m *Model) View() string {
 		no = selectedStyle.Render("No")
 	}
 
+	commitMsgShortHelpView := m.commitMessageShortInputHelp.View(m.commitMessageShortInputKeys)
+	commitMsgLongHelpView := m.commitMessageLongInputHelp.View(m.commitMessageLongInputKeys)
+
 	s := ""
 	switch {
 	case m.hasBoards && !m.hasSelectedBoard:
@@ -477,8 +624,11 @@ func (m *Model) View() string {
 		s = lipgloss.JoinVertical(lipgloss.Center, promptStyle.Render(m.breakingChangePrompt), lipgloss.JoinHorizontal(lipgloss.Left, no, yes))
 	case m.hasCoauthors && !m.hasSelectedCoauthors:
 		s = lipgloss.JoinVertical(lipgloss.Top, m.coauthorList.View())
-	case !m.hasCommitMessageShort, !m.hasCommitMessageLong:
-		s = lipgloss.JoinVertical(lipgloss.Top, m.commitMessageShortInput.View(), " ", m.commitMessageLongInput.View())
+	case !m.hasCommitMessageShort:
+		s = lipgloss.JoinVertical(lipgloss.Top, m.commitMessageShortInput.View(), " ", m.commitMessageLongInput.View(), " ", commitMsgShortHelpView)
+	case !m.hasCommitMessageLong:
+		s = lipgloss.JoinVertical(lipgloss.Top, m.commitMessageShortInput.View(), " ", m.commitMessageLongInput.View(), " ", commitMsgLongHelpView)
+
 	}
 	return s
 }
