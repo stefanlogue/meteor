@@ -30,4 +30,5 @@ jobs:
         args: release --clean
       env:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
 
