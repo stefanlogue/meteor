@@ -30,4 +30,6 @@ release:
   github:
     owner: stefanlogue
     name: meteor
-
+announce:
+  linkedin:
+    enabled: true
