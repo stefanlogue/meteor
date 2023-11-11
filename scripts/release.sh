@@ -2,7 +2,7 @@
 
 set -e
 
-export TAG=$(svu next)
+export TAG=$(svu patch)
 
 read -p "Creating new release for $TAG. Do you want to continue? [Y/n] " prompt
 
