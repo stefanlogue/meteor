@@ -1,11 +1,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	flag "github.com/spf13/pflag"
 )
 
 func isFlagPassed(name string) bool {
@@ -21,9 +21,9 @@ func isFlagPassed(name string) bool {
 var version = "dev"
 
 func main() {
-	flag.Bool("v", false, "show version")
+	flag.BoolP("version", "v", false, "show version")
 	flag.Parse()
-	if isFlagPassed("v") {
+	if isFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
 		os.Exit(0)
 	}
