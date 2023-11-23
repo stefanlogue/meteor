@@ -26,7 +26,7 @@ jobs:
     - name: Release
       uses: goreleaser/goreleaser-action@v5
       with:
-        version: v1.23.0-nightly
+        version: nightly
         args: release --clean
       env:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
