@@ -62,8 +62,8 @@ func newCoauthorListKeyMap() *coauthorListKeyMap {
 			key.WithHelp("enter", "accept"),
 		),
 		exit: key.NewBinding(
-			key.WithKeys("ctrl+c", "esc", "q"),
-			key.WithHelp("ctrl+c/esc/q", "quit"),
+			key.WithKeys("ctrl+c", "q"),
+			key.WithHelp("ctrl+c/q", "quit"),
 		),
 	}
 }
@@ -93,8 +93,8 @@ func newCommitMessageShortInputKeyMap() *commitMessageShortInputKeyMap {
 			key.WithHelp("enter", "submit"),
 		),
 		exit: key.NewBinding(
-			key.WithKeys("ctrl+c", "esc"),
-			key.WithHelp("ctrl+c/esc", "quit"),
+			key.WithKeys("ctrl+c"),
+			key.WithHelp("ctrl+c", "quit"),
 		),
 	}
 }
@@ -124,8 +124,8 @@ func newCommitMessageLongInputKeyMap() *commitMessageLongInputKeyMap {
 			key.WithHelp("ctrl+d", "submit"),
 		),
 		exit: key.NewBinding(
-			key.WithKeys("ctrl+c", "esc"),
-			key.WithHelp("ctrl+c/esc", "quit"),
+			key.WithKeys("ctrl+c"),
+			key.WithHelp("ctrl+c", "quit"),
 		),
 	}
 }
