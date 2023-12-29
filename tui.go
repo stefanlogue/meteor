@@ -20,6 +20,7 @@ const (
 
 var (
 	titleStyle      lipgloss.Style
+	headerText      = lipgloss.NewStyle().Foreground(lipgloss.Color("#F48F0B")).Bold(true).Padding(0, 1, 0, 2)
 	promptStyle     = lipgloss.NewStyle().Margin(1, 0, 0, 0)
 	selectedStyle   = lipgloss.NewStyle().Background(lipgloss.Color("212")).Foreground(lipgloss.Color("230")).Padding(0, 3).Margin(1, 1)
 	unselectedStyle = lipgloss.NewStyle().Background(lipgloss.Color("235")).Foreground(lipgloss.Color("254")).Padding(0, 3).Margin(1, 1)
@@ -166,6 +167,7 @@ type Model struct {
 	hasTicketNumber             bool
 	isBreakingChange            bool
 	quitting                    bool
+	width                       int
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -283,6 +285,7 @@ func newModel(boards []list.Item, prefixes []list.Item, coauthors []list.Item) *
 		commitMessageShortInputHelp: help.New(),
 		commitMessageLongInputKeys:  commitLongKeys,
 		commitMessageShortInputKeys: commitShortKeys,
+		width:                       defaultWidth,
 	}
 }
 
@@ -566,6 +569,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.commitMessageShortInput.Width = msg.Width - h - 4
 		m.commitMessageLongInput.SetWidth(msg.Width - h - 4)
 		m.commitMessageLongInput.SetHeight(msg.Height - v - 4)
+		m.width = msg.Width
 		inputStyle = inputStyle.Width(msg.Width - h - 4)
 		return m, nil
 	}
@@ -611,6 +615,8 @@ func (m *Model) View() string {
 	commitMsgShortHelpView := m.commitMessageShortInputHelp.View(m.commitMessageShortInputKeys)
 	commitMsgLongHelpView := m.commitMessageLongInputHelp.View(m.commitMessageLongInputKeys)
 
+	header := m.appBoundaryView("meteor")
+
 	s := ""
 	switch {
 	case m.hasBoards && !m.hasSelectedBoard:
@@ -630,5 +636,15 @@ func (m *Model) View() string {
 		s = lipgloss.JoinVertical(lipgloss.Top, m.commitMessageShortInput.View(), " ", m.commitMessageLongInput.View(), " ", commitMsgLongHelpView)
 
 	}
-	return s
+	return header + "\n" + s
+}
+
+func (m *Model) appBoundaryView(text string) string {
+	return lipgloss.PlaceHorizontal(
+		m.width,
+		lipgloss.Left,
+		headerText.Render(text),
+		lipgloss.WithWhitespaceChars("/"),
+		lipgloss.WithWhitespaceForeground(lipgloss.Color("#F48F0B")),
+	)
 }
