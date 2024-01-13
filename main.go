@@ -4,9 +4,18 @@ import (
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/huh"
 	flag "github.com/spf13/pflag"
 )
+
+type Commit struct {
+	Board     string
+	Type      string
+	Scope     string
+	Message   string
+	Body      string
+	Coauthors []string
+}
 
 func isFlagPassed(name string) bool {
 	found := false
@@ -46,19 +55,61 @@ func main() {
 		fail("Error: %s", err)
 	}
 
-	m := newModel(boards, prefixes, coauthors)
-	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
+	var commit Commit
+	mainForm := huh.NewForm(
+		huh.NewGroup(
+			huh.NewNote().
+				Title("meteor").
+				Description("A command line tool for generating conventional commit messages."),
+		),
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Board").
+				Description("Select the board for this commit").
+				Options(boards...).
+				Value(&commit.Board),
+		).WithHideFunc(func() bool {
+			return len(boards) < 1
+		}),
+		huh.NewGroup(
+			huh.NewMultiSelect[string]().
+				Title("Coauthors").
+				Description("Select any coauthors for this commit").
+				Options(coauthors...).
+				Value(&commit.Coauthors),
+		).WithHideFunc(func() bool {
+			return len(coauthors) < 1
+		}),
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Type").
+				Description("Select the type of change that you're committing").
+				Options(prefixes...).
+				Validate(func(s string) error {
+					commit.Message = s + ": "
+					return nil
+				}).
+				Value(&commit.Type),
+		),
+		huh.NewGroup(
+			huh.NewInput().
+				Value(&commit.Message).
+				Title("Message").
+				CharLimit(48),
+			huh.NewText().
+				Value(&commit.Body).
+				Title("Body").
+				Lines(8),
+		),
+	)
+
+	err = mainForm.Run()
+	if err != nil {
 		fail("Error: %s", err)
 	}
-	fmt.Println("")
 
-	if !m.Finished() {
-		fail("Aborted")
-	}
-
-	msg, body := m.CommitMessage()
-	if err := commit(msg, body); err != nil {
-		fail("Error with commit: %s", err)
+	if err != nil {
+		fail("Error: %s", err)
 	}
 }
 

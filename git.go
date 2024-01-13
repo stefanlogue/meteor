@@ -10,6 +10,7 @@ import (
 
 const maxGitRecursion = 32
 
+// checkGitInPath checks if git is in PATH and returns an error if not
 func checkGitInPath() error {
 	if _, err := exec.LookPath("git"); err != nil {
 		return fmt.Errorf("git not found in PATH: %w", err)
@@ -17,6 +18,7 @@ func checkGitInPath() error {
 	return nil
 }
 
+// findGitDir returns the root of the git repository
 func findGitDir() (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 	out, err := cmd.CombinedOutput()
@@ -26,6 +28,7 @@ func findGitDir() (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
+// getGitTicketNumber returns the most recent ticket number from the current git branch
 func getGitTicketNumber(board string) string {
 	cmd := exec.Command("git", "branch", "--show-current")
 	out, err := cmd.Output()
@@ -49,6 +52,7 @@ func getGitTicketNumber(board string) string {
 	return strings.TrimSpace(ticket)
 }
 
+// commit commits the changes to git
 func commit(msg string, body string) error {
 	args := append([]string{"commit", "-m", msg}, os.Args[1:]...)
 	if body != "" {
