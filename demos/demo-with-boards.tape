@@ -7,7 +7,7 @@ Set FontSize 24
 Set Width 1400
 Set Height 1000
 
-Type@250ms "git add -A" Enter
+Type@250ms "git add demo-with-boards.tape" Enter
 Type@250ms "meteor" Sleep 500ms Enter
 Sleep 3s
 Enter
@@ -41,7 +41,6 @@ Type@250ms "add gifs from vhs"
 Sleep 2s
 Enter
 Sleep 2s
-Left@500ms
 Enter
 
 Sleep 3s
