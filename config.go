@@ -34,11 +34,11 @@ var defaultPrefixes = []huh.Option[string]{
 	huh.NewOption("feat - a new feature", "feat"),
 	huh.NewOption("fix - a bug fix", "fix"),
 	huh.NewOption("docs - documentation only changes", "docs"),
-	huh.NewOption("style - changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)", "style"),
+	huh.NewOption("style - changes that do not affect the meaning of the code", "style"),
 	huh.NewOption("refactor - a code change that neither fixes a bug nor adds a feature", "refactor"),
 	huh.NewOption("perf - a code change that improves performance", "perf"),
 	huh.NewOption("test - adding missing tests or correcting existing tests", "test"),
-	huh.NewOption("chore - changes to the build process or auxiliary tools and libraries such as documentation generation", "chore"),
+	huh.NewOption("chore - changes to the build process or auxiliary tools and libraries", "chore"),
 	huh.NewOption("revert - reverts a previous commit", "revert"),
 	huh.NewOption("ci - changes to our CI configuration files and scripts", "ci"),
 }
@@ -70,7 +70,7 @@ func convertCoauthors(coauthors []coauthor) []huh.Option[string] {
 	}
 	items = append(items, huh.Option[string]{})
 	copy(items[1:], items)
-	items[0] = huh.NewOption[string]("None", "no coauthors")
+	items[0] = huh.NewOption[string]("no coauthors", "none")
 	return items
 }
 
@@ -117,7 +117,6 @@ func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[stri
 		}
 		filePath := filepath.Join(targetPath, configFile)
 		if _, err := os.Open(filePath); err == nil {
-			fmt.Println("Found config file at", filePath)
 			return loadConfigFile(filePath)
 		}
 

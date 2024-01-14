@@ -4,6 +4,7 @@ go 1.21.3
 
 require (
 	github.com/charmbracelet/huh v0.2.3
+	github.com/charmbracelet/huh/spinner v0.0.0-20240108162426-58163e7b5b2f
 	github.com/spf13/pflag v1.0.5
 )
 
