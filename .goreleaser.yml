@@ -32,4 +32,4 @@ release:
     name: meteor
 announce:
   linkedin:
-    enabled: true
+    enabled: false
