@@ -69,7 +69,7 @@ Type@250ms "meteor" Sleep 500ms Enter
 Sleep 3s
 Enter
 Sleep 3s
-Type@250ms "/chore"
+Type@250ms "/docs"
 Enter
 Sleep 3s
 Left@500ms
