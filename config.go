@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/huh"
 )
 
 type prefix struct {
@@ -30,58 +30,65 @@ type config struct {
 	Boards    []board    `json:"boards"`
 }
 
-var defaultPrefixes = []list.Item{
-	prefix{"feat", "A new feature"},
-	prefix{"fix", "A bug fix"},
-	prefix{"docs", "Documentation only changes"},
-	prefix{"style", "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)"},
-	prefix{"refactor", "A code change that neither fixes a bug nor adds a feature"},
-	prefix{"perf", "A code change that improves performance"},
-	prefix{"test", "Adding missing tests or correcting existing tests"},
-	prefix{"chore", "Changes to the build process or auxiliary tools and libraries such as documentation generation"},
-	prefix{"revert", "Reverts a previous commit"},
-	prefix{"ci", "Changes to our CI configuration files and scripts"},
+var defaultPrefixes = []huh.Option[string]{
+	huh.NewOption("feat - a new feature", "feat"),
+	huh.NewOption("fix - a bug fix", "fix"),
+	huh.NewOption("docs - documentation only changes", "docs"),
+	huh.NewOption("style - changes that do not affect the meaning of the code", "style"),
+	huh.NewOption("refactor - a code change that neither fixes a bug nor adds a feature", "refactor"),
+	huh.NewOption("perf - a code change that improves performance", "perf"),
+	huh.NewOption("test - adding missing tests or correcting existing tests", "test"),
+	huh.NewOption("chore - changes to the build process or auxiliary tools and libraries", "chore"),
+	huh.NewOption("revert - reverts a previous commit", "revert"),
+	huh.NewOption("ci - changes to our CI configuration files and scripts", "ci"),
 }
 
 const configFile = ".meteor.json"
 
-func convertPrefixes(prefixes []prefix) []list.Item {
-	items := []list.Item{}
-	for _, prefix := range prefixes {
-		items = append(items, prefix)
-	}
-	if len(items) == 0 {
+// convertPrefixes converts the given slice of prefixes into a slice of list.Items
+func convertPrefixes(prefixes []prefix) []huh.Option[string] {
+	if len(prefixes) == 0 {
 		return defaultPrefixes
 	}
+	items := []huh.Option[string]{}
+	for _, prefix := range prefixes {
+		desc := fmt.Sprintf("%s - %s", prefix.T, prefix.D)
+		items = append(items, huh.NewOption(desc, prefix.T))
+	}
 	return items
 }
 
-func convertCoauthors(coauthors []coauthor) []list.Item {
-	items := []list.Item{}
+// convertCoauthors converts the given slice of coauthors into a slice of list.Items
+func convertCoauthors(coauthors []coauthor) []huh.Option[string] {
+	if len(coauthors) == 0 {
+		return nil
+	}
+	items := []huh.Option[string]{}
 	for _, coauthor := range coauthors {
-		items = append(items, coauthor)
+		desc := fmt.Sprintf("%s <%s>", coauthor.Name, coauthor.Email)
+		items = append(items, huh.NewOption(desc, desc))
 	}
-	if len(items) == 0 {
-		return nil
-	}
-	items = append(items, coauthor{})
+	items = append(items, huh.Option[string]{})
 	copy(items[1:], items)
-	items[0] = coauthor{"None", "no coauthors", false}
+	items[0] = huh.NewOption[string]("no coauthors", "none")
 	return items
 }
 
-func convertBoards(boards []board) []list.Item {
-	items := []list.Item{}
-	for _, board := range boards {
-		items = append(items, board)
-	}
-	if len(items) == 0 {
+// convertBoards converts the given slice of boards into a slice of list.Items
+func convertBoards(boards []board) []huh.Option[string] {
+	if len(boards) == 0 {
 		return nil
 	}
+	items := []huh.Option[string]{}
+	for _, board := range boards {
+		items = append(items, huh.NewOption(board.Name, board.Name))
+	}
 	return items
 }
 
-func loadConfigFile(path string) ([]list.Item, []list.Item, []list.Item, error) {
+// loadConfigFile loads the config file from the given path, and
+// converts the contents into slices of list.Items
+func loadConfigFile(path string) ([]huh.Option[string], []huh.Option[string], []huh.Option[string], error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("error reading config file: %w", err)
@@ -93,7 +100,8 @@ func loadConfigFile(path string) ([]list.Item, []list.Item, []list.Item, error) 
 	return convertPrefixes(c.Prefixes), convertCoauthors(c.Coauthors), convertBoards(c.Boards), nil
 }
 
-func loadConfig() ([]list.Item, []list.Item, []list.Item, error) {
+// loadConfig loads the config file from the current directory or any parent
+func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[string], error) {
 	basePath, err := os.UserHomeDir()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("error getting home dir: %w", err)
@@ -109,7 +117,6 @@ func loadConfig() ([]list.Item, []list.Item, []list.Item, error) {
 		}
 		filePath := filepath.Join(targetPath, configFile)
 		if _, err := os.Open(filePath); err == nil {
-			fmt.Println("Found config file at", filePath)
 			return loadConfigFile(filePath)
 		}
 
