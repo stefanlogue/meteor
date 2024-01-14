@@ -1,6 +1,6 @@
 <div align="center">
   <h1>️☄ meteor ☄</h1>
-  <h5>Meteor is a simple CLI tool that helps you to use <a href="https://www.conventionalcommits.org/">conventional commits</a> with git.</h5>
+  <h5>Meteor is a simple, highly customisable CLI tool that helps you to write <a href="https://www.conventionalcommits.org/">conventional commits</a> with git.</h5>
 </div>
 
 

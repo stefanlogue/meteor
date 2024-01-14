@@ -81,7 +81,7 @@ func main() {
 		}
 	}
 
-	if len(newCommit.Board) > 0 {
+	if len(newCommit.Board) > 0 && newCommit.Board != "None" {
 		ticketNumber := getGitTicketNumber(newCommit.Board)
 
 		if ticketNumber == "" {
@@ -148,7 +148,7 @@ func main() {
 		fail("Error: %s", err)
 	}
 
-	if len(newCommit.Board) > 0 {
+	if len(newCommit.Board) > 0 && newCommit.Board != "NONE" {
 		if newCommit.IsBreakingChange {
 			if len(newCommit.Scope) > 0 {
 				newCommit.Message = fmt.Sprintf("%s(%s)!: <%s> ", newCommit.TicketNumber, newCommit.Scope, newCommit.Type)
