@@ -81,7 +81,7 @@ func main() {
 		}
 	}
 
-	if len(newCommit.Board) > 0 {
+	if len(newCommit.Board) > 0 && newCommit.Board != "None" {
 		ticketNumber := getGitTicketNumber(newCommit.Board)
 
 		if ticketNumber == "" {
