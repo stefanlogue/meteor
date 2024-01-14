@@ -1,4 +1,4 @@
-Output demo-without-boards.gif
+Output demo-with-boards.gif
 
 Require echo
 
@@ -12,6 +12,13 @@ Type@250ms "meteor" Sleep 500ms Enter
 Sleep 3s
 Enter
 Sleep 3s
+Down@500ms
+Up@500ms
+Enter
+Sleep 1s
+Type@250ms "1234"
+Sleep 2s
+Enter
 Type@250ms "/docs"
 Enter
 Sleep 3s
