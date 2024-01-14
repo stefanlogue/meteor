@@ -178,7 +178,7 @@ func main() {
 		}
 	}
 
-	var doesWantToCommit bool
+	doesWantToCommit := true
 	messageForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
