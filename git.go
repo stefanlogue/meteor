@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/alessio/shellescape"
 	"os"
 	"os/exec"
 	"regexp"
@@ -53,7 +54,7 @@ func getGitTicketNumber(board string) string {
 }
 
 // commit commits the changes to git
-func commit(msg string, body string) error {
+func commit(msg string, body string) (string, error) {
 	args := append([]string{"commit", "-m", msg}, os.Args[1:]...)
 	if body != "" {
 		args = append(args, "-m", body)
@@ -63,5 +64,5 @@ func commit(msg string, body string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
+	return fmt.Sprintf("git %v", shellescape.QuoteCommand(args)), cmd.Run()
 }
