@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ## [v0.14.0](https://github.com/stefanlogue/meteor/releases/tag/v0.14.0) - 2024-01-21
+### Added
+- config option for showing the intro screen
 
 ## [v0.13.1](https://github.com/stefanlogue/meteor/releases/tag/v0.13.1) - 2024-01-14
 ### Changed
