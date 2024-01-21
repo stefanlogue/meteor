@@ -28,6 +28,7 @@ type config struct {
 	Prefixes  []prefix   `json:"prefixes"`
 	Coauthors []coauthor `json:"coauthors"`
 	Boards    []board    `json:"boards"`
+	ShowIntro *bool      `json:"showIntro"`
 }
 
 var defaultPrefixes = []huh.Option[string]{
@@ -88,27 +89,31 @@ func convertBoards(boards []board) []huh.Option[string] {
 
 // loadConfigFile loads the config file from the given path, and
 // converts the config file into a slice of huh.Option[string]
-func loadConfigFile(path string) ([]huh.Option[string], []huh.Option[string], []huh.Option[string], error) {
+func loadConfigFile(path string) ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error reading config file: %w", err)
+		return nil, nil, nil, true, fmt.Errorf("error reading config file: %w", err)
 	}
 	var c config
 	if err := json.Unmarshal(data, &c); err != nil {
-		return nil, nil, nil, fmt.Errorf("error parsing config file: %w", err)
+		return nil, nil, nil, true, fmt.Errorf("error parsing config file: %w", err)
 	}
-	return convertPrefixes(c.Prefixes), convertCoauthors(c.Coauthors), convertBoards(c.Boards), nil
+	if c.ShowIntro == nil {
+		showIntro := true
+		c.ShowIntro = &showIntro
+	}
+	return convertPrefixes(c.Prefixes), convertCoauthors(c.Coauthors), convertBoards(c.Boards), *c.ShowIntro, nil
 }
 
 // loadConfig loads the config file from the current directory or any parent
-func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[string], error) {
+func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, error) {
 	basePath, err := os.UserHomeDir()
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error getting home dir: %w", err)
+		return nil, nil, nil, true, fmt.Errorf("error getting home dir: %w", err)
 	}
 	targetPath, err := os.Getwd()
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error getting current dir: %w", err)
+		return nil, nil, nil, true, fmt.Errorf("error getting current dir: %w", err)
 	}
 	for {
 		rel, _ := filepath.Rel(basePath, targetPath)
@@ -122,5 +127,5 @@ func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[stri
 
 		targetPath += "/.."
 	}
-	return defaultPrefixes, nil, nil, nil
+	return defaultPrefixes, nil, nil, true, nil
 }
