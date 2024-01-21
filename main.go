@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"os"
 
 	"github.com/charmbracelet/huh"
@@ -212,9 +213,14 @@ func main() {
 	}
 
 	if doesWantToCommit {
-		err := commit(newCommit.Message, newCommit.Body)
+		cmd, err := commit(newCommit.Message, newCommit.Body)
 		if err != nil {
-			fail("Error: %s", err)
+			fail(
+				"\n%s\n%s\n\n%s\n",
+				color.RedString(fmt.Sprintf("It looks like the commit failed.\nError: %s", err)),
+				color.YellowString("To run it again without going through meteor's wizard, simply run the following command:"),
+				color.BlueString(cmd),
+			)
 		}
 	}
 }
