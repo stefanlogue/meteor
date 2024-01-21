@@ -53,18 +53,25 @@ func main() {
 		fail("Could not change directory: %s", err)
 	}
 
-	prefixes, coauthors, boards, err := loadConfig()
+	prefixes, coauthors, boards, showIntro, err := loadConfig()
 	if err != nil {
 		fail("Error: %s", err)
 	}
 
 	var newCommit Commit
 	theme := huh.ThemeCatppuccin()
-	if len(boards) > 0 {
-		boardForm := huh.NewForm(
+	if showIntro {
+		introForm := huh.NewForm(
 			huh.NewGroup(
 				splashScreen(),
 			),
+		)
+		if err := introForm.Run(); err != nil {
+			fail("Error: %s", err)
+		}
+	}
+	if len(boards) > 0 {
+		boardForm := huh.NewForm(
 			huh.NewGroup(
 				huh.NewSelect[string]().
 					Title("Board").
@@ -110,11 +117,6 @@ func main() {
 	}
 
 	mainForm := huh.NewForm(
-		huh.NewGroup(
-			splashScreen(),
-		).WithHideFunc(func() bool {
-			return len(boards) > 0
-		}),
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Type").
