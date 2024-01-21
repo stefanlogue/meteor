@@ -19,6 +19,7 @@ type Commit struct {
 	IsBreakingChange bool
 }
 
+// isFlagPassed checks if a flag has been passed
 func isFlagPassed(name string) bool {
 	found := false
 	flag.Visit(func(f *flag.Flag) {
@@ -233,12 +234,14 @@ func buildCoauthorString(coauthors []string) string {
 	return s
 }
 
+// splashScreen returns a note with a splash screen
 func splashScreen() *huh.Note {
 	return huh.NewNote().
 		Title("meteor").
 		Description("A highly customisable command line tool\nfor writing conventional commit messages")
 }
 
+// fail prints an error message and exits with a non-zero exit code
 func fail(format string, args ...interface{}) {
 	_, _ = fmt.Fprintf(os.Stderr, format+"\n", args...)
 	os.Exit(1)

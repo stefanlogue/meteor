@@ -45,7 +45,7 @@ var defaultPrefixes = []huh.Option[string]{
 
 const configFile = ".meteor.json"
 
-// convertPrefixes converts the given slice of prefixes into a slice of list.Items
+// convertPrefixes converts the given slice of prefixes into a slice of huh.Option[string]
 func convertPrefixes(prefixes []prefix) []huh.Option[string] {
 	if len(prefixes) == 0 {
 		return defaultPrefixes
@@ -58,7 +58,7 @@ func convertPrefixes(prefixes []prefix) []huh.Option[string] {
 	return items
 }
 
-// convertCoauthors converts the given slice of coauthors into a slice of list.Items
+// convertCoauthors converts the given slice of coauthors into a slice of huh.Option[string]
 func convertCoauthors(coauthors []coauthor) []huh.Option[string] {
 	if len(coauthors) == 0 {
 		return nil
@@ -74,7 +74,7 @@ func convertCoauthors(coauthors []coauthor) []huh.Option[string] {
 	return items
 }
 
-// convertBoards converts the given slice of boards into a slice of list.Items
+// convertBoards converts the given slice of boards into a slice of huh.Option[string]
 func convertBoards(boards []board) []huh.Option[string] {
 	if len(boards) == 0 {
 		return nil
@@ -87,7 +87,7 @@ func convertBoards(boards []board) []huh.Option[string] {
 }
 
 // loadConfigFile loads the config file from the given path, and
-// converts the contents into slices of list.Items
+// converts the config file into a slice of huh.Option[string]
 func loadConfigFile(path string) ([]huh.Option[string], []huh.Option[string], []huh.Option[string], error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
