@@ -41,9 +41,9 @@ The content should be in the following format:
     { "name": "John Doe", "email": "john.doe@email.com" }
   ],
   "prefixes": [
-    { "title":  "feat", "description":  "a new feature"},
-    { "title":  "fix", "description":  "a bug fix"},
-    { "title":  "bug", "description":  "introducing a bug"}
+    { "type":  "feat", "description":  "a new feature"},
+    { "type":  "fix", "description":  "a bug fix"},
+    { "type":  "bug", "description":  "introducing a bug"}
   ],
 }
 ```
@@ -55,5 +55,12 @@ If you use boards (Jira etc) but need a way to have commits without one, add the
     { "name": "COMP" },
     { "name": "NONE" }
   ]
+}
+```
+
+And if you want to skip the intro screen to save a keypress, add the following to your config:
+```json
+{
+  "showIntro": false
 }
 ```
