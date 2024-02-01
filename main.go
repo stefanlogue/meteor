@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/huh"
 	flag "github.com/spf13/pflag"
+	"golang.design/x/clipboard"
 )
 
 type Commit struct {
@@ -231,23 +232,31 @@ func main() {
 	}
 
 	commitCommand := buildCommitCommand(newCommit.Message, newCommit.Body)
+	printableCommitCommand := "git " + commitCommand
 	if doesWantToCommit {
 		err := commit(commitCommand)
 		if err != nil {
+			writeToClipboard(printableCommitCommand)
 			fail(
-				"\n%s\n%s\n\n%s\n",
+				"\n%s\n%s\n\n%s\n\n",
 				color.RedString(fmt.Sprintf("It looks like the commit failed.\nError: %s", err)),
-				color.YellowString("To run it again without going through meteor's wizard, simply run the following command:"),
-				color.BlueString(commitCommand),
+				color.YellowString("To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):"),
+				color.BlueString(printableCommitCommand),
 			)
 		}
 	} else {
+		writeToClipboard(printableCommitCommand)
 		fmt.Printf(
-			"\n%s\n\n%s\n%s\n",
+			"\n%s\n\n%s\n%s\n\n",
 			color.RedString("Commit aborted."),
-			color.YellowString("Here's the command you just built:"),
-			color.BlueString("git "+commitCommand))
+			color.YellowString("I've copied the following command to your clipboard, so you can run it again later:"),
+			color.BlueString(printableCommitCommand))
 	}
+}
+
+// writeToClipboard writes a string to the clipboard
+func writeToClipboard(s string) {
+	clipboard.Write(clipboard.FmtText, []byte(s))
 }
 
 // buildCoauthorString takes a slice of selected coauthors and returns a formatted
