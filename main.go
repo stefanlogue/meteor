@@ -230,16 +230,23 @@ func main() {
 		newCommit.Body = newCommit.Body + buildCoauthorString(newCommit.Coauthors)
 	}
 
+	commitCommand := buildCommitCommand(newCommit.Message, newCommit.Body)
 	if doesWantToCommit {
-		cmd, err := commit(newCommit.Message, newCommit.Body)
+		err := commit(commitCommand)
 		if err != nil {
 			fail(
 				"\n%s\n%s\n\n%s\n",
 				color.RedString(fmt.Sprintf("It looks like the commit failed.\nError: %s", err)),
 				color.YellowString("To run it again without going through meteor's wizard, simply run the following command:"),
-				color.BlueString(cmd),
+				color.BlueString(commitCommand),
 			)
 		}
+	} else {
+		fmt.Printf(
+			"\n%s\n\n%s\n%s\n",
+			color.RedString("Commit aborted."),
+			color.YellowString("Here's the command you just built:"),
+			color.BlueString("git "+commitCommand))
 	}
 }
 
