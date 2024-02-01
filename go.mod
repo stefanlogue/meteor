@@ -4,9 +4,11 @@ go 1.21.3
 
 require (
 	github.com/alessio/shellescape v1.4.2
+	github.com/charmbracelet/bubbles v0.17.1
 	github.com/charmbracelet/huh v0.2.3
 	github.com/fatih/color v1.16.0
 	github.com/spf13/pflag v1.0.5
+	golang.design/x/clipboard v0.7.0
 )
 
 require (
@@ -15,7 +17,6 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
-	github.com/charmbracelet/bubbles v0.17.1 // indirect
 	github.com/charmbracelet/bubbletea v0.25.0 // indirect
 	github.com/charmbracelet/glamour v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v0.9.1 // indirect
@@ -36,6 +37,9 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/yuin/goldmark v1.6.0 // indirect
 	github.com/yuin/goldmark-emoji v1.0.2 // indirect
+	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
+	golang.org/x/image v0.6.0 // indirect
+	golang.org/x/mobile v0.0.0-20230301163155-e0f57694e12c // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sync v0.4.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect

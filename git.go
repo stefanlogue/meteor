@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+
+	"github.com/alessio/shellescape"
 )
 
 const maxGitRecursion = 32
@@ -58,8 +60,7 @@ func buildCommitCommand(msg string, body string) string {
 	if body != "" {
 		args = append(args, "-m", body)
 	}
-	cmd := strings.Join(args, " ")
-	return cmd
+	return shellescape.QuoteCommand(args)
 }
 
 // commit commits the changes to git
