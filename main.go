@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"os"
 
+	"github.com/fatih/color"
+
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/huh"
 	flag "github.com/spf13/pflag"
 )
@@ -201,7 +203,23 @@ func main() {
 				Negative("No.").
 				Value(&doesWantToCommit),
 		),
-	).WithTheme(theme)
+	).WithKeyMap(&huh.KeyMap{
+		Quit: key.NewBinding(key.WithKeys("ctrl+c"), key.WithHelp("ctrl+c", "quit")),
+		Text: huh.TextKeyMap{
+			Next:    key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "next")),
+			NewLine: key.NewBinding(key.WithKeys("alt+enter", "ctrl+j"), key.WithHelp("alt+enter / ctrl+j", "new line")),
+			Editor:  key.NewBinding(key.WithKeys("ctrl+e"), key.WithHelp("ctrl+e", "open editor")),
+			Prev:    key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
+		},
+		Input: huh.InputKeyMap{
+			Next: key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "next")),
+		},
+		Confirm: huh.ConfirmKeyMap{
+			Toggle: key.NewBinding(key.WithKeys("left", "right", "h", "l"), key.WithHelp("left / right", "toggle")),
+			Next:   key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "next")),
+			Prev:   key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
+		},
+	}).WithTheme(theme)
 
 	err = messageForm.Run()
 	if err != nil {
