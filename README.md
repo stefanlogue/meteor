@@ -1,5 +1,6 @@
 <div align="center">
   <h1>️☄ meteor ☄</h1>
+  <img alt="GitHub Release" src="https://img.shields.io/github/v/release/stefanlogue/meteor">
   <h5>Meteor is a simple, highly customisable CLI tool that helps you to write <a href="https://www.conventionalcommits.org/">conventional commits</a> with git.</h5>
 </div>
 
