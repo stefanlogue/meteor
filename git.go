@@ -55,17 +55,17 @@ func getGitTicketNumber(board string) string {
 }
 
 // buildCommitCommand builds the git commit command
-func buildCommitCommand(msg string, body string) string {
-	args := append([]string{"commit", "-m", msg}, os.Args[1:]...)
+func buildCommitCommand(msg string, body string, osArgs []string) ([]string, string) {
+	args := append([]string{"commit", "-m", msg}, osArgs...)
 	if body != "" {
 		args = append(args, "-m", body)
 	}
-	return shellescape.QuoteCommand(args)
+	return args, fmt.Sprintf("git %v", shellescape.QuoteCommand(args))
 }
 
 // commit commits the changes to git
-func commit(command string) error {
-	cmd := exec.Command("git", command)
+func commit(command []string) error {
+	cmd := exec.Command("git", command...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

@@ -231,10 +231,10 @@ func main() {
 		newCommit.Body = newCommit.Body + buildCoauthorString(newCommit.Coauthors)
 	}
 
-	commitCommand := buildCommitCommand(newCommit.Message, newCommit.Body)
-	printableCommitCommand := "git " + commitCommand
+	args := os.Args[1:]
+	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
 	if doesWantToCommit {
-		err := commit(commitCommand)
+		err := commit(rawCommitCommand)
 		if err != nil {
 			writeToClipboard(printableCommitCommand)
 			fail(
