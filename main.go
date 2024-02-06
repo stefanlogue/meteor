@@ -6,10 +6,10 @@ import (
 
 	"github.com/fatih/color"
 
+	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/huh"
 	flag "github.com/spf13/pflag"
-	"golang.design/x/clipboard"
 )
 
 type Commit struct {
@@ -256,7 +256,7 @@ func main() {
 
 // writeToClipboard writes a string to the clipboard
 func writeToClipboard(s string) {
-	clipboard.Write(clipboard.FmtText, []byte(s))
+	clipboard.WriteAll(s)
 }
 
 // buildCoauthorString takes a slice of selected coauthors and returns a formatted
