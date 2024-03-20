@@ -30,5 +30,5 @@ func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[stri
 		c.ShowIntro = &showIntro
 	}
 
-	return c.Prefixes.Option(), c.Coauthors.Options(), c.Boards.Options(), *c.ShowIntro, nil
+	return c.Prefixes.Options(), c.Coauthors.Options(), c.Boards.Options(), *c.ShowIntro, nil
 }

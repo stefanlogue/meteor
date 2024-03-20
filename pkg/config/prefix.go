@@ -28,7 +28,7 @@ var (
 	}
 )
 
-func (p *Prefixes) Option() []huh.Option[string] {
+func (p *Prefixes) Options() []huh.Option[string] {
 
 	prefixes := []Prefix(*p)
 
