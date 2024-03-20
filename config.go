@@ -12,7 +12,7 @@ import (
 func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, error) {
 	filePath, err := config.FindConfigFile()
 	if err != nil {
-		log.Error("Error finding config file", "error", err)
+		log.Warn("Error finding config file", "error", err)
 		return config.DefaultPrefixes, nil, nil, true, nil
 	}
 

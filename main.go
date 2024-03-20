@@ -37,22 +37,22 @@ func isFlagPassed(name string) bool {
 }
 
 var (
-	version  = "dev"
-	logLevel string
+	version   = "dev"
+	debugMode bool
 )
 
 func init() {
 	flag.BoolP("version", "v", false, "show version")
-	flag.StringVarP(&logLevel, "log-level", "L", "info", "Log level (debug, info, warn, error, fatal, panic)")
+	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
 	flag.Parse()
 	if isFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
 		os.Exit(0)
 	}
 
-	programLevel, err := log.ParseLevel(logLevel)
-	if err != nil {
-		log.Fatal("invalid log level", "error", err)
+	programLevel := log.InfoLevel
+	if debugMode {
+		programLevel = log.DebugLevel
 	}
 
 	logger := log.NewWithOptions(os.Stderr, log.Options{
