@@ -254,7 +254,7 @@ func main() {
 		newCommit.Body = newCommit.Body + buildCoauthorString(newCommit.Coauthors)
 	}
 
-	args := os.Args[1:]
+	args := flag.Args()
 	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
 	if doesWantToCommit {
 		err := commit(rawCommitCommand)
