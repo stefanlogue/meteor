@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+
+	"github.com/charmbracelet/log"
 )
 
 type Config struct {
@@ -20,6 +22,8 @@ func New() *Config {
 }
 
 func (c *Config) LoadFile(filePath string) error {
+	log.Debug("loading config file", "path", filePath)
+
 	if filePath == "" {
 		return errors.New("no path provided")
 	}

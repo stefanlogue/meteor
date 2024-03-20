@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
 
 	"github.com/atotto/clipboard"
@@ -34,15 +36,36 @@ func isFlagPassed(name string) bool {
 	return found
 }
 
-var version = "dev"
+var (
+	version  = "dev"
+	logLevel string
+)
 
-func main() {
+func init() {
 	flag.BoolP("version", "v", false, "show version")
+	flag.StringVarP(&logLevel, "log-level", "L", "info", "Log level (debug, info, warn, error, fatal, panic)")
 	flag.Parse()
 	if isFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
 		os.Exit(0)
 	}
+
+	programLevel, err := log.ParseLevel(logLevel)
+	if err != nil {
+		log.Fatal("invalid log level", "error", err)
+	}
+
+	logger := log.NewWithOptions(os.Stderr, log.Options{
+		ReportCaller:    false,
+		ReportTimestamp: true,
+		TimeFormat:      time.DateTime,
+	})
+
+	logger.SetLevel(programLevel)
+	log.SetDefault(logger)
+}
+
+func main() {
 
 	if err := checkGitInPath(); err != nil {
 		fail("Error: %s", err)
