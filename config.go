@@ -2,21 +2,25 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/log"
 	"github.com/stefanlogue/meteor/pkg/config"
 )
 
-const configFile = ".meteor.json"
+// loadConfig loads the config file from the current directory or any parent
+func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, error) {
+	filePath, err := config.FindConfigFile()
+	if err != nil {
+		log.Error("Error finding config file", "error", err)
+		return config.DefaultPrefixes, nil, nil, true, nil
+	}
 
-// loadConfigFile loads the config file from the given path, and
-// converts the config file into a slice of huh.Option[string]
-func loadConfigFile(path string) ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, error) {
+	log.Debug("found config file", "path", filePath)
+
 	c := config.New()
 
-	err := c.LoadFile(path)
+	err = c.LoadFile(filePath)
 	if err != nil {
 		return nil, nil, nil, true, fmt.Errorf("error parsing config file: %w", err)
 	}
@@ -27,29 +31,4 @@ func loadConfigFile(path string) ([]huh.Option[string], []huh.Option[string], []
 	}
 
 	return c.Prefixes.Option(), c.Coauthors.Options(), c.Boards.Options(), *c.ShowIntro, nil
-}
-
-// loadConfig loads the config file from the current directory or any parent
-func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, error) {
-	basePath, err := os.UserHomeDir()
-	if err != nil {
-		return nil, nil, nil, true, fmt.Errorf("error getting home dir: %w", err)
-	}
-	targetPath, err := os.Getwd()
-	if err != nil {
-		return nil, nil, nil, true, fmt.Errorf("error getting current dir: %w", err)
-	}
-	for {
-		rel, _ := filepath.Rel(basePath, targetPath)
-		if rel == "." {
-			break
-		}
-		filePath := filepath.Join(targetPath, configFile)
-		if _, err := os.Open(filePath); err == nil {
-			return loadConfigFile(filePath)
-		}
-
-		targetPath += "/.."
-	}
-	return config.DefaultPrefixes, nil, nil, true, nil
 }
