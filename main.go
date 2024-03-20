@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
 
 	"github.com/atotto/clipboard"
@@ -34,15 +36,36 @@ func isFlagPassed(name string) bool {
 	return found
 }
 
-var version = "dev"
+var (
+	version   = "dev"
+	debugMode bool
+)
 
-func main() {
+func init() {
 	flag.BoolP("version", "v", false, "show version")
+	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
 	flag.Parse()
 	if isFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
 		os.Exit(0)
 	}
+
+	programLevel := log.InfoLevel
+	if debugMode {
+		programLevel = log.DebugLevel
+	}
+
+	logger := log.NewWithOptions(os.Stderr, log.Options{
+		ReportCaller:    false,
+		ReportTimestamp: true,
+		TimeFormat:      time.DateTime,
+	})
+
+	logger.SetLevel(programLevel)
+	log.SetDefault(logger)
+}
+
+func main() {
 
 	if err := checkGitInPath(); err != nil {
 		fail("Error: %s", err)
@@ -231,7 +254,7 @@ func main() {
 		newCommit.Body = newCommit.Body + buildCoauthorString(newCommit.Coauthors)
 	}
 
-	args := os.Args[1:]
+	args := flag.Args()
 	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
 	if doesWantToCommit {
 		err := commit(rawCommitCommand)

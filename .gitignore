@@ -3,3 +3,4 @@ dist/
 *.mov
 .venv/
 .meteor.json
+.idea/
