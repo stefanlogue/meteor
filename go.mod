@@ -1,6 +1,6 @@
 module github.com/stefanlogue/meteor
 
-go 1.21.3
+go 1.22.1
 
 require (
 	github.com/alessio/shellescape v1.4.2
