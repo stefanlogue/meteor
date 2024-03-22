@@ -5,12 +5,13 @@ import (
 
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/log"
+	"github.com/spf13/afero"
 	"github.com/stefanlogue/meteor/pkg/config"
 )
 
 // loadConfig loads the config file from the current directory or any parent
-func loadConfig() ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, error) {
-	filePath, err := config.FindConfigFile()
+func loadConfig(fs afero.Fs) ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, error) {
+	filePath, err := config.FindConfigFile(fs)
 	if err != nil {
 		log.Debug("Error finding config file", "error", err)
 		return config.DefaultPrefixes, nil, nil, true, nil

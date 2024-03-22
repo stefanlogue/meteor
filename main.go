@@ -11,6 +11,7 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/huh"
+	"github.com/spf13/afero"
 	flag "github.com/spf13/pflag"
 )
 
@@ -39,6 +40,8 @@ func isFlagPassed(name string) bool {
 var (
 	version   = "dev"
 	debugMode bool
+	FS        afero.Fs     = afero.NewOsFs()
+	AFS       *afero.Afero = &afero.Afero{Fs: FS}
 )
 
 func init() {
@@ -66,7 +69,6 @@ func init() {
 }
 
 func main() {
-
 	if err := checkGitInPath(); err != nil {
 		fail("Error: %s", err)
 	}
@@ -80,7 +82,7 @@ func main() {
 		fail("Could not change directory: %s", err)
 	}
 
-	prefixes, coauthors, boards, showIntro, err := loadConfig()
+	prefixes, coauthors, boards, showIntro, err := loadConfig(AFS)
 	if err != nil {
 		fail("Error: %s", err)
 	}

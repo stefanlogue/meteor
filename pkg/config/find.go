@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"github.com/spf13/afero"
 )
 
 const (
@@ -20,8 +21,8 @@ const (
 // 3. IF parent doesn't contain the .meteor.json file, the search will continue until the home directory is reached.
 // 4. If no .meteor.json file is found, look in ~/.config/meteor/config.json
 // 5. If no .meteor.json file is found, return an error
-func FindConfigFile() (string, error) {
-	if _, err := os.Stat(configFile); err == nil {
+func FindConfigFile(fs afero.Fs) (string, error) {
+	if _, err := fs.Stat(configFile); err == nil {
 		return path.Join("./", configFile), nil
 	}
 
@@ -44,7 +45,7 @@ func FindConfigFile() (string, error) {
 		filePath := filepath.Join(currentDir, configFile)
 		log.Debug("checking for config file", "path", filePath)
 
-		if _, err := os.Open(filePath); err == nil {
+		if _, err := fs.Open(filePath); err == nil {
 			return filePath, nil
 		}
 
@@ -53,7 +54,7 @@ func FindConfigFile() (string, error) {
 
 	xdgConfigFile := path.Join(homeDir, ".config/meteor/config.json")
 	log.Debug("checking for config file", "path", xdgConfigFile)
-	if _, err := os.Stat(xdgConfigFile); err == nil {
+	if _, err := fs.Stat(xdgConfigFile); err == nil {
 		return xdgConfigFile, nil
 	}
 
