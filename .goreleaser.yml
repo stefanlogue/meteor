@@ -48,9 +48,6 @@ changelog:
     - title: "New Features"
       regexp: '^.*?feat(\(.+\))??!?:.+$'
       order: 100
-    - title: "Security updates"
-      regexp: '^.*?sec(\(.+\))??!?:.+$'
-      order: 150
     - title: "Bug fixes"
       regexp: '^.*?(fix|refactor)(\(.+\))??!?:.+$'
       order: 200
