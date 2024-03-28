@@ -232,8 +232,8 @@ func main() {
 	).WithKeyMap(&huh.KeyMap{
 		Quit: key.NewBinding(key.WithKeys("ctrl+c"), key.WithHelp("ctrl+c", "quit")),
 		Text: huh.TextKeyMap{
-			Next:    key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "next")),
-			NewLine: key.NewBinding(key.WithKeys("alt+enter", "ctrl+j"), key.WithHelp("alt+enter / ctrl+j", "new line")),
+			Next:    key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab / ctrl+enter", "next")),
+			NewLine: key.NewBinding(key.WithKeys("enter", "ctrl+j"), key.WithHelp("enter / ctrl+j", "new line")),
 			Editor:  key.NewBinding(key.WithKeys("ctrl+e"), key.WithHelp("ctrl+e", "open editor")),
 			Prev:    key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
 		},
@@ -242,6 +242,7 @@ func main() {
 		},
 		Confirm: huh.ConfirmKeyMap{
 			Toggle: key.NewBinding(key.WithKeys("left", "right", "h", "l"), key.WithHelp("left / right", "toggle")),
+			Submit: key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "submit")),
 			Next:   key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "next")),
 			Prev:   key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
 		},
