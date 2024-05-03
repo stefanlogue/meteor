@@ -180,35 +180,22 @@ func main() {
 		fail("Error: %s", err)
 	}
 
+	ticketNumber := ""
 	if len(newCommit.Board) > 0 && newCommit.Board != "NONE" {
-		if newCommit.IsBreakingChange {
-			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s)!: <%s> ", newCommit.TicketNumber, newCommit.Scope, newCommit.Type)
-			} else {
-				newCommit.Message = fmt.Sprintf("%s!: <%s> ", newCommit.TicketNumber, newCommit.Type)
-			}
-		} else {
-			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s): <%s> ", newCommit.TicketNumber, newCommit.Scope, newCommit.Type)
-			} else {
-				newCommit.Message = fmt.Sprintf("%s: <%s> ", newCommit.TicketNumber, newCommit.Type)
-			}
-		}
-	} else {
-		if newCommit.IsBreakingChange {
-			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s)!: ", newCommit.Type, newCommit.Scope)
-			} else {
-				newCommit.Message = fmt.Sprintf("%s!: ", newCommit.Type)
-			}
-		} else {
-			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s): ", newCommit.Type, newCommit.Scope)
-			} else {
-				newCommit.Message = fmt.Sprintf("%s: ", newCommit.Type)
-			}
-		}
+		ticketNumber = newCommit.TicketNumber
 	}
+
+	scope := ""
+	if len(newCommit.Scope) > 0 {
+		scope = fmt.Sprintf("(%s)", newCommit.Scope)
+	}
+
+	breakingChange := ""
+	if newCommit.IsBreakingChange {
+		breakingChange = "!"
+	}
+
+	newCommit.Message = fmt.Sprintf("%s%s%s: <%s> ", ticketNumber, scope, breakingChange, newCommit.Type)
 
 	doesWantToCommit := true
 	messageForm := huh.NewForm(
