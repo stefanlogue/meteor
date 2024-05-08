@@ -242,8 +242,8 @@ func main() {
 		},
 		Confirm: huh.ConfirmKeyMap{
 			Toggle: key.NewBinding(key.WithKeys("left", "right", "h", "l"), key.WithHelp("left / right", "toggle")),
-			Next:   key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "next")),
 			Prev:   key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
+			Submit: key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "submit")),
 		},
 	}).WithTheme(theme)
 
