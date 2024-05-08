@@ -30,6 +30,11 @@ func findGitDir() (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
+func matchTicketNumber(board string, msg string) bool {
+	match, _ := regexp.MatchString(fmt.Sprintf(`(?i)^%s-\d{1,}`, board), msg)
+	return match
+}
+
 // getGitTicketNumber returns the most recent ticket number from the current git branch
 func getGitTicketNumber(board string) string {
 	cmd := exec.Command("git", "branch", "--show-current")
@@ -37,7 +42,7 @@ func getGitTicketNumber(board string) string {
 	if err != nil {
 		return ""
 	}
-	match, _ := regexp.MatchString(fmt.Sprintf(`(?i)^%s-\d{4,}`, board), string(out))
+	match := matchTicketNumber(board, string(out))
 	if !match {
 		cmd = exec.Command("git", "log", "-1", "--grep", board, "--oneline", "--format=%s")
 		out, err = cmd.Output()
@@ -49,7 +54,7 @@ func getGitTicketNumber(board string) string {
 		return strings.TrimSpace(ticket)
 	}
 
-	re := regexp.MustCompile(fmt.Sprintf(`(?i)((%s-)\d{4,})|(.*)`, board))
+	re := regexp.MustCompile(fmt.Sprintf(`(?i)((%s-)\d{1,})|(.*)`, board))
 	ticket := re.ReplaceAllString(string(out), "$1")
 	return strings.TrimSpace(ticket)
 }
