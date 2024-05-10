@@ -82,7 +82,7 @@ func main() {
 		fail("Could not change directory: %s", err)
 	}
 
-	prefixes, coauthors, boards, showIntro, err := loadConfig(AFS)
+	prefixes, coauthors, boards, showIntro, commitTitleCharLimit, err := loadConfig(AFS)
 	if err != nil {
 		fail("Error: %s", err)
 	}
@@ -216,7 +216,7 @@ func main() {
 			huh.NewInput().
 				Value(&newCommit.Message).
 				Title("Message").
-				CharLimit(48),
+				CharLimit(commitTitleCharLimit),
 			huh.NewText().
 				Value(&newCommit.Body).
 				Title("Body").
