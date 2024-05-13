@@ -11,10 +11,10 @@ import (
 
 type Config struct {
 	ShowIntro            *bool     `json:"showIntro"`
+	CommitTitleCharLimit *int      `json:"commitTitleCharLimit"`
 	Prefixes             Prefixes  `json:"prefixes"`
 	Coauthors            CoAuthors `json:"coauthors"`
 	Boards               Boards    `json:"boards"`
-	CommitTitleCharLimit *int      `json:"commitTitleCharLimit"`
 }
 
 // New returns a new Config
