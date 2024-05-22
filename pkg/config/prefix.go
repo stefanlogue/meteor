@@ -25,6 +25,7 @@ var (
 		huh.NewOption("chore - changes to the build process or auxiliary tools and libraries", "chore"),
 		huh.NewOption("revert - reverts a previous commit", "revert"),
 		huh.NewOption("ci - changes to our CI configuration files and scripts", "ci"),
+		huh.NewOption("build - changes that affect the build system or external dependencies", "build"),
 	}
 )
 
