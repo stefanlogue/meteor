@@ -52,7 +52,7 @@ changelog:
       regexp: '^.*?(fix|refactor)(\(.+\))??!?:.+$'
       order: 200
     - title: "Documentation updates"
-      regexp: ^.*?docs?(\(.+\))??!?:.+$
+      regexp: ^.*?docs?(\((?!CHANGELOG).+\))??!?:.+$
       order: 400
     - title: "Build process updates"
       regexp: ^.*?(build|ci)(\(.+\))??!?:.+$
