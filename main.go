@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"time"
@@ -40,12 +41,15 @@ func isFlagPassed(name string) bool {
 var (
 	version   = "dev"
 	debugMode bool
+	skipIntro bool
 	FS        afero.Fs     = afero.NewOsFs()
 	AFS       *afero.Afero = &afero.Afero{Fs: FS}
 )
 
 func init() {
 	flag.BoolP("version", "v", false, "show version")
+	flag.BoolP("as-git-editor", "e", false, "used as GIT_EDITOR")
+	flag.BoolVarP(&skipIntro, "skip-intro", "s", false, "skip intro splash")
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
 	flag.Parse()
 	if isFlagPassed("version") {
@@ -57,7 +61,6 @@ func init() {
 	if debugMode {
 		programLevel = log.DebugLevel
 	}
-
 	logger := log.NewWithOptions(os.Stderr, log.Options{
 		ReportCaller:    false,
 		ReportTimestamp: true,
@@ -89,7 +92,7 @@ func main() {
 
 	var newCommit Commit
 	theme := huh.ThemeCatppuccin()
-	if showIntro {
+	if showIntro && (isFlagPassed("skip-intro") && !skipIntro) {
 		introForm := huh.NewForm(
 			huh.NewGroup(
 				splashScreen(),
@@ -220,6 +223,7 @@ func main() {
 			huh.NewText().
 				Value(&newCommit.Body).
 				Title("Body").
+				CharLimit(0).
 				Lines(8),
 		),
 		huh.NewGroup(
@@ -257,7 +261,55 @@ func main() {
 	}
 
 	args := flag.Args()
+
+	var commitFile string
+
+	// If we're operating in GIT_EDITOR="meteor --as-git-editor" mode, the first argument is the path (.git/COMMIT_EDITMSG)
+	// where we should write the git commit message, so we shift that from args before constructing the end-user command line
+	if isFlagPassed("as-git-editor") {
+		commitFile = args[0]
+		args = args[1:]
+	}
+
 	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
+
+	if isFlagPassed("as-git-editor") {
+		// We intent to do the commit
+		if doesWantToCommit {
+			// Write the commit message file (.git/COMMIT_EDITMSG) in same format as git would have,
+			// the message, a blank line, and a body - if body is empty, trailing newlines will be removed
+			if err := os.WriteFile(commitFile, bytes.TrimRight([]byte(newCommit.Message+"\n\n"+newCommit.Body), "\n"), os.ModePerm); err != nil {
+				// In case of failure, give the regular error-ish output to the end-user so no inputs are lost
+				writeToClipboard(printableCommitCommand)
+
+				fail(
+					"\n%s\n%s\n\n%s\n\n",
+					color.RedString(fmt.Sprintf("It looks like the commit failed.\nError: %s", err)),
+					color.YellowString("To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):"),
+					color.BlueString(printableCommitCommand),
+				)
+
+				return
+			}
+
+			// we wrote the commit message file, nothing left for us to do, success!
+
+			return
+		}
+
+		// end-user decided to abort the commit, which mean we don't write the git commit message file (.git/COMMIT_EDITMSG)
+		// which will make git abort the operation
+
+		writeToClipboard(printableCommitCommand)
+		fmt.Printf(
+			"\n%s\n\n%s\n%s\n\n",
+			color.RedString("Commit aborted."),
+			color.YellowString("I've copied the following command to your clipboard, so you can run it again later:"),
+			color.BlueString(printableCommitCommand))
+
+		return
+	}
+
 	if doesWantToCommit {
 		err := commit(rawCommitCommand)
 		if err != nil {
