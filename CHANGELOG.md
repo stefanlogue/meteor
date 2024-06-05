@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.22.0](https://github.com/stefanlogue/meteor/releases/tag/v0.22.0) - 2024-06-05
+### Added
+- `GIT_EDITOR` support: use `meteor` as the default when using `git commit`
+
 ## [v0.21.2](https://github.com/stefanlogue/meteor/releases/tag/v0.21.2) - 2024-05-24
 
 ## [v0.21.1](https://github.com/stefanlogue/meteor/releases/tag/v0.21.1) - 2024-05-24
