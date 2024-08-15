@@ -188,7 +188,7 @@ func main() {
 			if len(newCommit.Scope) > 0 {
 				newCommit.Message = fmt.Sprintf("%s(%s)!: <%s> ", newCommit.Type, newCommit.Scope, newCommit.TicketNumber)
 			} else {
-				newCommit.Message = fmt.Sprintf("%s!: <%s> ",  newCommit.Type, newCommit.TicketNumber)
+				newCommit.Message = fmt.Sprintf("%s!: <%s> ", newCommit.Type, newCommit.TicketNumber)
 			}
 		} else {
 			if len(newCommit.Scope) > 0 {
