@@ -49,8 +49,8 @@ func getGitTicketNumber(board string) string {
 		if err != nil {
 			return ""
 		}
-		re := regexp.MustCompile(`(.*):.*`)
-		ticket := re.ReplaceAllString(string(out), "$1")
+		re := regexp.MustCompile(`(.*):.*(<(.*)>)?.*`)
+		ticket := re.ReplaceAllString(string(out), "$3")
 		return strings.TrimSpace(ticket)
 	}
 
