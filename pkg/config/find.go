@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-
+	"strings"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/afero"
 )
@@ -27,24 +27,27 @@ func FindConfigFile(fs afero.Fs) (string, error) {
 	}
 
 	homeDir, err := os.UserHomeDir()
+	log.Debug("Home directoy: ", "homeDir", homeDir)
 	if err != nil {
 		return "", fmt.Errorf("error getting home dir: %w", err)
 	}
 
 	currentDir, err := os.Getwd()
+	log.Debug("Current directory: ", "currentDir", currentDir)
 	if err != nil {
 		return "", fmt.Errorf("error getting current dir: %w", err)
 	}
 
 	for {
 		rel, _ := filepath.Rel(homeDir, currentDir)
-		if rel == ".." {
+		if strings.Trim(rel,"../") == "" {
 			break
 		}
+		log.Debug("relative path: ", "rel", rel)
 
 		filePath := filepath.Join(currentDir, configFile)
 		log.Debug("checking for config file", "path", filePath)
-
+		
 		if _, err := fs.Open(filePath); err == nil {
 			return filePath, nil
 		}

@@ -186,15 +186,15 @@ func main() {
 	if len(newCommit.Board) > 0 && newCommit.Board != "NONE" {
 		if newCommit.IsBreakingChange {
 			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s)!: <%s> ", newCommit.TicketNumber, newCommit.Scope, newCommit.Type)
+				newCommit.Message = fmt.Sprintf("%s(%s)!: <%s> ", newCommit.Type, newCommit.Scope, newCommit.TicketNumber)
 			} else {
-				newCommit.Message = fmt.Sprintf("%s!: <%s> ", newCommit.TicketNumber, newCommit.Type)
+				newCommit.Message = fmt.Sprintf("%s!: <%s> ",  newCommit.Type, newCommit.TicketNumber)
 			}
 		} else {
 			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s): <%s> ", newCommit.TicketNumber, newCommit.Scope, newCommit.Type)
+				newCommit.Message = fmt.Sprintf("%s(%s): <%s> ", newCommit.Type, newCommit.Scope, newCommit.TicketNumber)
 			} else {
-				newCommit.Message = fmt.Sprintf("%s: <%s> ", newCommit.TicketNumber, newCommit.Type)
+				newCommit.Message = fmt.Sprintf("%s: <%s> ", newCommit.Type, newCommit.TicketNumber)
 			}
 		}
 	} else {
