@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: go get .
       - name: test
-        run: go test -json > test-results.json
+        run: go test -json > meteor-TestResults.json
       - name: upload results
         uses: actions/upload-artifact@v4
         with:
