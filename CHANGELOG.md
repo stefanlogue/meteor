@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- user-defined message templates
 
 ## [v0.22.0](https://github.com/stefanlogue/meteor/releases/tag/v0.22.0) - 2024-06-05
 ### Added
