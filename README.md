@@ -29,6 +29,8 @@ Or grab a binary from [the latest release](https://github.com/stefanlogue/meteor
 You can customise the options available by creating a `.meteor.json` file anywhere in the directory tree (at or above the current working directory). The config file closest to the current working directory will be preferred. This enables you to have different configs for different parent directories, such as one for your personal work, one for your actual work, one for open source work etc.
 For global configurations you can create a `config.json` file in the `~/.config/meteor/` directory.
 
+### Boards
+
 ![Demo with boards](demos/demo-with-boards.gif)
 
 The content should be in the following format:
@@ -61,7 +63,25 @@ If you use boards (Jira etc) but need a way to have commits without one, add the
 }
 ```
 
-And if you want to skip the intro screen to save a keypress, add the following to your config:
+### Message Templates
+If the default commit message templates aren't exactly what you're looking for, you can provide your own! The syntax can be seen in the defaults below:
+
+```json
+{
+  "messageTemplate": "@type(@scope): @message",
+  "messageWithTicketTemplate": "@ticket(@scope): <@type> @message"
+}
+```
+
+`messageTemplate` needs to have:
+  - `@type`: the conventional commit type i.e. `feat`, `chore` etc.
+  - `@message`: the commit message
+  - `(@scope)`: (optional but recommended) the scope of the commit, must be within parentheses
+
+`messageWithTicketTemplate` also additionally takes `@ticket`
+
+### Intro
+If you want to skip the intro screen to save a keypress, add the following to your config:
 ```json
 {
   "showIntro": false

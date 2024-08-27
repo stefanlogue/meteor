@@ -10,11 +10,13 @@ import (
 )
 
 type Config struct {
-	ShowIntro            *bool     `json:"showIntro"`
-	CommitTitleCharLimit *int      `json:"commitTitleCharLimit"`
-	Prefixes             Prefixes  `json:"prefixes"`
-	Coauthors            CoAuthors `json:"coauthors"`
-	Boards               Boards    `json:"boards"`
+	ShowIntro                 *bool     `json:"showIntro"`
+	CommitTitleCharLimit      *int      `json:"commitTitleCharLimit"`
+	MessageTemplate           *string   `json:"messageTemplate"`
+	MessageWithTicketTemplate *string   `json:"messageWithTicketTemplate"`
+	Prefixes                  Prefixes  `json:"prefixes"`
+	Coauthors                 CoAuthors `json:"coauthors"`
+	Boards                    Boards    `json:"boards"`
 }
 
 // New returns a new Config

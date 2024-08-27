@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"text/template"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -85,7 +86,7 @@ func main() {
 		fail("Could not change directory: %s", err)
 	}
 
-	prefixes, coauthors, boards, showIntro, commitTitleCharLimit, err := loadConfig(AFS)
+	prefixes, coauthors, boards, showIntro, commitTitleCharLimit, messageTemplate, messageWithTicketTemplate, err := loadConfig(AFS)
 	if err != nil {
 		fail("Error: %s", err)
 	}
@@ -183,35 +184,18 @@ func main() {
 		fail("Error: %s", err)
 	}
 
+	var tmpl *template.Template
 	if len(newCommit.Board) > 0 && newCommit.Board != "NONE" {
-		if newCommit.IsBreakingChange {
-			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s)!: <%s> ", newCommit.TicketNumber, newCommit.Scope, newCommit.Type)
-			} else {
-				newCommit.Message = fmt.Sprintf("%s!: <%s> ", newCommit.TicketNumber, newCommit.Type)
-			}
-		} else {
-			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s): <%s> ", newCommit.TicketNumber, newCommit.Scope, newCommit.Type)
-			} else {
-				newCommit.Message = fmt.Sprintf("%s: <%s> ", newCommit.TicketNumber, newCommit.Type)
-			}
-		}
+		tmpl = template.Must(template.New("message").Parse(messageWithTicketTemplate))
 	} else {
-		if newCommit.IsBreakingChange {
-			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s)!: ", newCommit.Type, newCommit.Scope)
-			} else {
-				newCommit.Message = fmt.Sprintf("%s!: ", newCommit.Type)
-			}
-		} else {
-			if len(newCommit.Scope) > 0 {
-				newCommit.Message = fmt.Sprintf("%s(%s): ", newCommit.Type, newCommit.Scope)
-			} else {
-				newCommit.Message = fmt.Sprintf("%s: ", newCommit.Type)
-			}
-		}
+		tmpl = template.Must(template.New("message").Parse(messageTemplate))
 	}
+	buf := new(bytes.Buffer)
+	err = tmpl.Execute(buf, newCommit)
+	if err != nil {
+		fail("Error: %s", err)
+	}
+	newCommit.Message = buf.String()
 
 	doesWantToCommit := true
 	messageForm := huh.NewForm(
