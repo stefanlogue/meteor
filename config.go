@@ -31,13 +31,11 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	if err != nil {
 		log.Debug("Error finding config file", "error", err)
 		return LoadConfigReturn{
-			defaultMessageTemplate,
-			defaultMessageWithTicketTemplate,
-			config.DefaultPrefixes,
-			nil,
-			nil,
-			defaultCommitTitleCharLimit,
-			true,
+			MessageTemplate:           defaultMessageTemplate,
+			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
+			Prefixes:                  config.DefaultPrefixes,
+			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
+			ShowIntro:                 true,
 		}, nil
 	}
 
@@ -48,13 +46,10 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	err = c.LoadFile(filePath)
 	if err != nil {
 		return LoadConfigReturn{
-			defaultMessageTemplate,
-			defaultMessageWithTicketTemplate,
-			nil,
-			nil,
-			nil,
-			defaultCommitTitleCharLimit,
-			true,
+			MessageTemplate:           defaultMessageTemplate,
+			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
+			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
+			ShowIntro:                 true,
 		}, fmt.Errorf("error parsing config file: %w", err)
 	}
 
@@ -89,12 +84,12 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	c.MessageWithTicketTemplate = &messageWithTicketTemplate
 
 	return LoadConfigReturn{
-		messageTemplate,
-		messageWithTicketTemplate,
-		c.Prefixes.Options(),
-		c.Coauthors.Options(),
-		c.Boards.Options(),
-		*c.CommitTitleCharLimit,
-		*c.ShowIntro,
+		MessageTemplate:           messageTemplate,
+		MessageWithTicketTemplate: messageWithTicketTemplate,
+		Prefixes:                  c.Prefixes.Options(),
+		Coauthors:                 c.Coauthors.Options(),
+		Boards:                    c.Boards.Options(),
+		CommitTitleCharLimit:      *c.CommitTitleCharLimit,
+		ShowIntro:                 *c.ShowIntro,
 	}, nil
 }
