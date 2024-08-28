@@ -6,6 +6,9 @@ import (
 )
 
 func ConvertTemplate(t string) (string, error) {
+	if strings.Contains(t, "{{") {
+		return "", fmt.Errorf("template must not contain {{}}")
+	}
 	if !strings.Contains(t, "@type") || !strings.Contains(t, "@message") {
 		return t, fmt.Errorf("template must contain @type and @message")
 	}

@@ -86,14 +86,14 @@ func main() {
 		fail("Could not change directory: %s", err)
 	}
 
-	prefixes, coauthors, boards, showIntro, commitTitleCharLimit, messageTemplate, messageWithTicketTemplate, err := loadConfig(AFS)
+	config, err := loadConfig(AFS)
 	if err != nil {
 		fail("Error: %s", err)
 	}
 
 	var newCommit Commit
 	theme := huh.ThemeCatppuccin()
-	if showIntro && (isFlagPassed("skip-intro") && !skipIntro) {
+	if config.ShowIntro && (isFlagPassed("skip-intro") && !skipIntro) {
 		introForm := huh.NewForm(
 			huh.NewGroup(
 				splashScreen(),
@@ -103,16 +103,16 @@ func main() {
 			fail("Error: %s", err)
 		}
 	}
-	if len(boards) > 0 {
+	if len(config.Boards) > 0 {
 		boardForm := huh.NewForm(
 			huh.NewGroup(
 				huh.NewSelect[string]().
 					Title("Board").
 					Description("Select the board for this commit").
-					Options(boards...).
+					Options(config.Boards...).
 					Value(&newCommit.Board),
 			).WithHideFunc(func() bool {
-				return len(boards) < 1
+				return len(config.Boards) < 1
 			}),
 		).WithTheme(theme)
 
@@ -139,7 +139,7 @@ func main() {
 					CharLimit(10).
 					Value(&newCommit.TicketNumber),
 			).WithHideFunc(func() bool {
-				return len(boards) < 1
+				return len(config.Boards) < 1
 			}),
 		).WithTheme(theme)
 
@@ -154,7 +154,7 @@ func main() {
 			huh.NewSelect[string]().
 				Title("Type").
 				Description("Select the type of change that you're committing").
-				Options(prefixes...).
+				Options(config.Prefixes...).
 				Value(&newCommit.Type),
 			huh.NewConfirm().
 				Title("Breaking Change").
@@ -172,10 +172,10 @@ func main() {
 			huh.NewMultiSelect[string]().
 				Title("Coauthors").
 				Description("Select any coauthors for this commit").
-				Options(coauthors...).
+				Options(config.Coauthors...).
 				Value(&newCommit.Coauthors),
 		).WithHideFunc(func() bool {
-			return len(coauthors) < 1
+			return len(config.Coauthors) < 1
 		}),
 	).WithTheme(theme)
 
@@ -186,9 +186,9 @@ func main() {
 
 	var tmpl *template.Template
 	if len(newCommit.Board) > 0 && newCommit.Board != "NONE" {
-		tmpl = template.Must(template.New("message").Parse(messageWithTicketTemplate))
+		tmpl = template.Must(template.New("message").Parse(config.MessageWithTicketTemplate))
 	} else {
-		tmpl = template.Must(template.New("message").Parse(messageTemplate))
+		tmpl = template.Must(template.New("message").Parse(config.MessageTemplate))
 	}
 	buf := new(bytes.Buffer)
 	err = tmpl.Execute(buf, newCommit)
@@ -203,7 +203,7 @@ func main() {
 			huh.NewInput().
 				Value(&newCommit.Message).
 				Title("Message").
-				CharLimit(commitTitleCharLimit),
+				CharLimit(config.CommitTitleCharLimit),
 			huh.NewText().
 				Value(&newCommit.Body).
 				Title("Body").

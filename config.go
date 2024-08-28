@@ -15,12 +15,28 @@ const (
 	defaultMessageWithTicketTemplate = "{{.TicketNumber}}{{if .Scope}}({{.Scope}}){{end}}{{if .IsBreakingChange}}!{{end}}: <{{.Type}}> {{.Message}}"
 )
 
+type LoadConfigReturn struct {
+	MessageTemplate           string
+	MessageWithTicketTemplate string
+	Prefixes                  []huh.Option[string]
+	Coauthors                 []huh.Option[string]
+	Boards                    []huh.Option[string]
+	CommitTitleCharLimit      int
+	ShowIntro                 bool
+}
+
 // loadConfig loads the config file from the current directory or any parent
-func loadConfig(fs afero.Fs) ([]huh.Option[string], []huh.Option[string], []huh.Option[string], bool, int, string, string, error) {
+func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	filePath, err := config.FindConfigFile(fs)
 	if err != nil {
 		log.Debug("Error finding config file", "error", err)
-		return config.DefaultPrefixes, nil, nil, true, defaultCommitTitleCharLimit, defaultMessageTemplate, defaultMessageWithTicketTemplate, nil
+		return LoadConfigReturn{
+			MessageTemplate:           defaultMessageTemplate,
+			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
+			Prefixes:                  config.DefaultPrefixes,
+			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
+			ShowIntro:                 true,
+		}, nil
 	}
 
 	log.Debug("found config file", "path", filePath)
@@ -29,7 +45,12 @@ func loadConfig(fs afero.Fs) ([]huh.Option[string], []huh.Option[string], []huh.
 
 	err = c.LoadFile(filePath)
 	if err != nil {
-		return nil, nil, nil, true, defaultCommitTitleCharLimit, defaultMessageTemplate, defaultMessageWithTicketTemplate, fmt.Errorf("error parsing config file: %w", err)
+		return LoadConfigReturn{
+			MessageTemplate:           defaultMessageTemplate,
+			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
+			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
+			ShowIntro:                 true,
+		}, fmt.Errorf("error parsing config file: %w", err)
 	}
 
 	if c.ShowIntro == nil {
@@ -42,10 +63,8 @@ func loadConfig(fs afero.Fs) ([]huh.Option[string], []huh.Option[string], []huh.
 		c.CommitTitleCharLimit = &commitTitleCharLimit
 	}
 
-	var messageTemplate, messageWithTicketTemplate string
-	if c.MessageTemplate == nil {
-		messageTemplate = defaultMessageTemplate
-	} else {
+	messageTemplate := defaultMessageTemplate
+	if c.MessageTemplate != nil {
 		messageTemplate, err = config.ConvertTemplate(*c.MessageTemplate)
 		if err != nil {
 			log.Error("Error converting message template", "error", err)
@@ -54,9 +73,8 @@ func loadConfig(fs afero.Fs) ([]huh.Option[string], []huh.Option[string], []huh.
 	}
 	c.MessageTemplate = &messageTemplate
 
-	if c.MessageWithTicketTemplate == nil {
-		messageWithTicketTemplate = defaultMessageWithTicketTemplate
-	} else {
+	messageWithTicketTemplate := defaultMessageWithTicketTemplate
+	if c.MessageWithTicketTemplate != nil {
 		messageWithTicketTemplate, err = config.ConvertTemplate(*c.MessageWithTicketTemplate)
 		if err != nil {
 			log.Error("Error converting message with ticket template", "error", err)
@@ -65,5 +83,13 @@ func loadConfig(fs afero.Fs) ([]huh.Option[string], []huh.Option[string], []huh.
 	}
 	c.MessageWithTicketTemplate = &messageWithTicketTemplate
 
-	return c.Prefixes.Options(), c.Coauthors.Options(), c.Boards.Options(), *c.ShowIntro, *c.CommitTitleCharLimit, messageTemplate, messageWithTicketTemplate, nil
+	return LoadConfigReturn{
+		MessageTemplate:           messageTemplate,
+		MessageWithTicketTemplate: messageWithTicketTemplate,
+		Prefixes:                  c.Prefixes.Options(),
+		Coauthors:                 c.Coauthors.Options(),
+		Boards:                    c.Boards.Options(),
+		CommitTitleCharLimit:      *c.CommitTitleCharLimit,
+		ShowIntro:                 *c.ShowIntro,
+	}, nil
 }
