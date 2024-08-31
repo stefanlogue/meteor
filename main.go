@@ -269,7 +269,7 @@ func main() {
 			// Write the commit message file (.git/COMMIT_EDITMSG) in same format as git would have,
 			// the message, a blank line, and a body - if body is empty, trailing newlines will be removed
 
-			if err := os.WriteFile(commitFile, bytes.TrimRight([]byte(newCommit.Message+"\n\n"+newCommit.Body), "/n"), os.ModePerm); err != nil {
+			if err := os.WriteFile(commitFile, bytes.TrimRight([]byte(newCommit.Message+"\n\n"+newCommit.Body), "/n"), os.FileMode(os.O_WRONLY)); err != nil {
 				// In case of failure, give the regular error-ish output to the end-user so no inputs are lost
 				writeToClipboard(printableCommitCommand)
 
