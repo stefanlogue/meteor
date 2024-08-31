@@ -15,6 +15,17 @@ jobs:
         run: go get .
       - name: build
         run: go build -v ./...
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -27,9 +38,4 @@ jobs:
       - name: Install dependencies
         run: go get .
       - name: test
-        run: go test -json > meteor-TestResults.json
-      - name: upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: meteor-TestResults
-          path: meteor-TestResults.json
+        run: go test -v ./...
