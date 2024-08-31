@@ -269,20 +269,7 @@ func main() {
 			// Write the commit message file (.git/COMMIT_EDITMSG) in same format as git would have,
 			// the message, a blank line, and a body - if body is empty, trailing newlines will be removed
 
-			// Opening the commit message file with minimal permissions, so we can write to it
-			file, err := os.OpenFile(commitFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
-			if err != nil {
-				writeToClipboard(printableCommitCommand)
-
-				fail(
-					"\n%s\n\n",
-					color.RedString(fmt.Sprintf("Failed to open the commit file.\nError: %s", err)),
-				)
-
-				return
-			}
-			_, err = file.Write([]byte(newCommit.Message + "\n\n" + newCommit.Body))
-			if err != nil {
+			if err := os.WriteFile(commitFile, bytes.TrimRight([]byte(newCommit.Message+"\n\n"+newCommit.Body), "/n"), os.ModePerm); err != nil {
 				// In case of failure, give the regular error-ish output to the end-user so no inputs are lost
 				writeToClipboard(printableCommitCommand)
 
