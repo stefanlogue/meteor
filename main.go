@@ -47,9 +47,15 @@ var (
 	AFS       *afero.Afero = &afero.Afero{Fs: FS}
 )
 
+const (
+	AS_GIT_EDITOR = "as-git-editor"
+	ERROR_STRING  = "Error: %s"
+	SHIFT_TAB     = "shift+tab"
+)
+
 func init() {
 	flag.BoolP("version", "v", false, "show version")
-	flag.BoolP("as-git-editor", "e", false, "used as GIT_EDITOR")
+	flag.BoolP(AS_GIT_EDITOR, "e", false, "used as GIT_EDITOR")
 	flag.BoolVarP(&skipIntro, "skip-intro", "s", false, "skip intro splash")
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
 	flag.Parse()
@@ -74,12 +80,12 @@ func init() {
 
 func main() {
 	if err := checkGitInPath(); err != nil {
-		fail("Error: %s", err)
+		fail(ERROR_STRING, err)
 	}
 
 	gitRoot, err := findGitDir()
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ERROR_STRING, err)
 	}
 
 	if err := os.Chdir(gitRoot); err != nil {
@@ -88,7 +94,7 @@ func main() {
 
 	config, err := loadConfig(AFS)
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ERROR_STRING, err)
 	}
 
 	var newCommit Commit
@@ -100,7 +106,7 @@ func main() {
 			),
 		)
 		if err := introForm.Run(); err != nil {
-			fail("Error: %s", err)
+			fail(ERROR_STRING, err)
 		}
 	}
 	if len(config.Boards) > 0 {
@@ -118,7 +124,7 @@ func main() {
 
 		err = boardForm.Run()
 		if err != nil {
-			fail("Error: %s", err)
+			fail(ERROR_STRING, err)
 		}
 	}
 
@@ -145,7 +151,7 @@ func main() {
 
 		err = ticketNumberForm.Run()
 		if err != nil {
-			fail("Error: %s", err)
+			fail(ERROR_STRING, err)
 		}
 	}
 
@@ -181,7 +187,7 @@ func main() {
 
 	err = mainForm.Run()
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ERROR_STRING, err)
 	}
 
 	var tmpl *template.Template
@@ -193,7 +199,7 @@ func main() {
 	buf := new(bytes.Buffer)
 	err = tmpl.Execute(buf, newCommit)
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ERROR_STRING, err)
 	}
 	newCommit.Message = buf.String()
 
@@ -223,21 +229,21 @@ func main() {
 			Next:    key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "next")),
 			NewLine: key.NewBinding(key.WithKeys("alt+enter", "ctrl+j"), key.WithHelp("alt+enter / ctrl+j", "new line")),
 			Editor:  key.NewBinding(key.WithKeys("ctrl+e"), key.WithHelp("ctrl+e", "open editor")),
-			Prev:    key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
+			Prev:    key.NewBinding(key.WithKeys(SHIFT_TAB), key.WithHelp(SHIFT_TAB, "back")),
 		},
 		Input: huh.InputKeyMap{
 			Next: key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "next")),
 		},
 		Confirm: huh.ConfirmKeyMap{
 			Toggle: key.NewBinding(key.WithKeys("left", "right", "h", "l"), key.WithHelp("left / right", "toggle")),
-			Prev:   key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
+			Prev:   key.NewBinding(key.WithKeys(SHIFT_TAB), key.WithHelp(SHIFT_TAB, "back")),
 			Submit: key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "submit")),
 		},
 	}).WithTheme(theme)
 
 	err = messageForm.Run()
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ERROR_STRING, err)
 	}
 
 	if len(newCommit.Coauthors) > 0 {
@@ -250,14 +256,14 @@ func main() {
 
 	// If we're operating in GIT_EDITOR="meteor --as-git-editor" mode, the first argument is the path (.git/COMMIT_EDITMSG)
 	// where we should write the git commit message, so we shift that from args before constructing the end-user command line
-	if isFlagPassed("as-git-editor") {
+	if isFlagPassed(AS_GIT_EDITOR) {
 		commitFile = args[0]
 		args = args[1:]
 	}
 
 	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
 
-	if isFlagPassed("as-git-editor") {
+	if isFlagPassed(AS_GIT_EDITOR) {
 		// We intent to do the commit
 		if doesWantToCommit {
 			// Write the commit message file (.git/COMMIT_EDITMSG) in same format as git would have,
