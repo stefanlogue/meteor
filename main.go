@@ -323,10 +323,11 @@ func main() {
 }
 
 // writeToClipboard writes a string to the clipboard
-func writeToClipboard(s string) {
+func writeToClipboard(s string) error {
 	if err := clipboard.WriteAll(s); err != nil {
-		fail("Failed to copy to clipboard: %s", err)
+		return err
 	}
+	return nil
 }
 
 // buildCoauthorString takes a slice of selected coauthors and returns a formatted
