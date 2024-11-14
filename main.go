@@ -47,9 +47,15 @@ var (
 	AFS       *afero.Afero = &afero.Afero{Fs: FS}
 )
 
+const (
+	AsGitEditor = "as-git-editor"
+	ErrorString = "Error: %s"
+	ShiftTab    = "shift+tab"
+)
+
 func init() {
 	flag.BoolP("version", "v", false, "show version")
-	flag.BoolP("as-git-editor", "e", false, "used as GIT_EDITOR")
+	flag.BoolP(AsGitEditor, "e", false, "used as GIT_EDITOR")
 	flag.BoolVarP(&skipIntro, "skip-intro", "s", false, "skip intro splash")
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
 	flag.Parse()
@@ -74,12 +80,12 @@ func init() {
 
 func main() {
 	if err := checkGitInPath(); err != nil {
-		fail("Error: %s", err)
+		fail(ErrorString, err)
 	}
 
 	gitRoot, err := findGitDir()
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ErrorString, err)
 	}
 
 	if err := os.Chdir(gitRoot); err != nil {
@@ -88,7 +94,7 @@ func main() {
 
 	config, err := loadConfig(AFS)
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ErrorString, err)
 	}
 
 	var newCommit Commit
@@ -100,7 +106,7 @@ func main() {
 			),
 		)
 		if err := introForm.Run(); err != nil {
-			fail("Error: %s", err)
+			fail(ErrorString, err)
 		}
 	}
 	if len(config.Boards) > 0 {
@@ -118,7 +124,7 @@ func main() {
 
 		err = boardForm.Run()
 		if err != nil {
-			fail("Error: %s", err)
+			fail(ErrorString, err)
 		}
 	}
 
@@ -145,7 +151,7 @@ func main() {
 
 		err = ticketNumberForm.Run()
 		if err != nil {
-			fail("Error: %s", err)
+			fail(ErrorString, err)
 		}
 	}
 
@@ -181,7 +187,7 @@ func main() {
 
 	err = mainForm.Run()
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ErrorString, err)
 	}
 
 	var tmpl *template.Template
@@ -193,7 +199,7 @@ func main() {
 	buf := new(bytes.Buffer)
 	err = tmpl.Execute(buf, newCommit)
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ErrorString, err)
 	}
 	newCommit.Message = buf.String()
 
@@ -223,21 +229,21 @@ func main() {
 			Next:    key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "next")),
 			NewLine: key.NewBinding(key.WithKeys("alt+enter", "ctrl+j"), key.WithHelp("alt+enter / ctrl+j", "new line")),
 			Editor:  key.NewBinding(key.WithKeys("ctrl+e"), key.WithHelp("ctrl+e", "open editor")),
-			Prev:    key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
+			Prev:    key.NewBinding(key.WithKeys(ShiftTab), key.WithHelp(ShiftTab, "back")),
 		},
 		Input: huh.InputKeyMap{
 			Next: key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "next")),
 		},
 		Confirm: huh.ConfirmKeyMap{
 			Toggle: key.NewBinding(key.WithKeys("left", "right", "h", "l"), key.WithHelp("left / right", "toggle")),
-			Prev:   key.NewBinding(key.WithKeys("shift+tab"), key.WithHelp("shift+tab", "back")),
+			Prev:   key.NewBinding(key.WithKeys(ShiftTab), key.WithHelp(ShiftTab, "back")),
 			Submit: key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "submit")),
 		},
 	}).WithTheme(theme)
 
 	err = messageForm.Run()
 	if err != nil {
-		fail("Error: %s", err)
+		fail(ErrorString, err)
 	}
 
 	if len(newCommit.Coauthors) > 0 {
@@ -250,19 +256,20 @@ func main() {
 
 	// If we're operating in GIT_EDITOR="meteor --as-git-editor" mode, the first argument is the path (.git/COMMIT_EDITMSG)
 	// where we should write the git commit message, so we shift that from args before constructing the end-user command line
-	if isFlagPassed("as-git-editor") {
+	if isFlagPassed(AsGitEditor) {
 		commitFile = args[0]
 		args = args[1:]
 	}
 
 	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
 
-	if isFlagPassed("as-git-editor") {
+	if isFlagPassed(AsGitEditor) {
 		// We intent to do the commit
 		if doesWantToCommit {
 			// Write the commit message file (.git/COMMIT_EDITMSG) in same format as git would have,
 			// the message, a blank line, and a body - if body is empty, trailing newlines will be removed
-			if err := os.WriteFile(commitFile, bytes.TrimRight([]byte(newCommit.Message+"\n\n"+newCommit.Body), "\n"), os.ModePerm); err != nil {
+
+			if err := os.WriteFile(commitFile, bytes.TrimRight([]byte(newCommit.Message+"\n\n"+newCommit.Body), "/n"), os.FileMode(os.O_WRONLY)); err != nil {
 				// In case of failure, give the regular error-ish output to the end-user so no inputs are lost
 				writeToClipboard(printableCommitCommand)
 
@@ -317,7 +324,9 @@ func main() {
 
 // writeToClipboard writes a string to the clipboard
 func writeToClipboard(s string) {
-	clipboard.WriteAll(s)
+	if err := clipboard.WriteAll(s); err != nil {
+		fail("Failed to copy to clipboard: %s", err)
+	}
 }
 
 // buildCoauthorString takes a slice of selected coauthors and returns a formatted
