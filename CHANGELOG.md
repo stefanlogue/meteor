@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.24.2](https://github.com/stefanlogue/meteor/releases/tag/v0.24.2) - 2024-12-09
+
 ## [v0.24.1](https://github.com/stefanlogue/meteor/releases/tag/v0.24.1) - 2024-12-09
 
 ## [v0.24.0](https://github.com/stefanlogue/meteor/releases/tag/v0.24.0) - 2024-12-09
