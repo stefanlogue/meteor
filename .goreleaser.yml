@@ -16,7 +16,7 @@ builds:
       - amd64
       - arm64
 archives:
-  - format: binary
+  - format: zip
     name_template: "{{ .Binary}}-{{ .Os }}-{{ .Arch }}"
 brews:
   - name: meteor
@@ -24,6 +24,12 @@ brews:
     repository:
       owner: stefanlogue
       name: homebrew-tools
+scoops:
+  - name: meteor
+    depends: ["git"]
+    repository:
+      owner: stefanlogue
+      name: scoops
 release:
   prerelease: auto
   github:
