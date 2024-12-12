@@ -30,8 +30,8 @@ func findGitDir() (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-func matchTicketNumber(board string, msg string) bool {
-	match, _ := regexp.MatchString(fmt.Sprintf(`(?i)^%s-\d{1,}`, board), msg)
+func checkBoardMatchesBranch(board string, msg string) bool {
+	match, _ := regexp.MatchString(fmt.Sprintf(`(?i)%s-\d{1,}`, board), msg)
 	return match
 }
 
@@ -42,21 +42,24 @@ func getGitTicketNumber(board string) string {
 	if err != nil {
 		return ""
 	}
-	match := matchTicketNumber(board, string(out))
+	match := checkBoardMatchesBranch(board, string(out))
 	if !match {
 		cmd = exec.Command("git", "log", "-1", "--grep", board, "--oneline", "--format=%s")
 		out, err = cmd.Output()
 		if err != nil {
 			return ""
 		}
-		re := regexp.MustCompile(`(.*):.*`)
-		ticket := re.ReplaceAllString(string(out), "$1")
-		return strings.TrimSpace(ticket)
 	}
 
-	re := regexp.MustCompile(fmt.Sprintf(`(?i)((%s-)\d{1,})|(.*)`, board))
-	ticket := re.ReplaceAllString(string(out), "$1")
+	ticket := getTicketNumberFromString(string(out), board)
 	return strings.TrimSpace(ticket)
+}
+
+func getTicketNumberFromString(str string, sub string) string {
+	expr := fmt.Sprintf(`(?i).*((%s-)\d{1,})|(.*)`, sub)
+
+	re := regexp.MustCompile(expr)
+	return re.ReplaceAllString(str, "$1")
 }
 
 // buildCommitCommand builds the git commit command

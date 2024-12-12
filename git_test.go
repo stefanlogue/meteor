@@ -12,7 +12,7 @@ func TestBuildCommitCommand(t *testing.T) {
 	}
 }
 
-func TestMatchTicketNumber(t *testing.T) {
+func TestCheckBoardMatchesBranch(t *testing.T) {
 	cases := []struct {
 		Desc string
 		msg  string
@@ -24,12 +24,34 @@ func TestMatchTicketNumber(t *testing.T) {
 		{"it should match with 4 digits", "TICKET-1234", true},
 		{"it should match with 5 digits", "TICKET-12345", true},
 		{"it should match with 6 digits", "TICKET-123456", true},
+		{"it should match different case", "ticket-1234", true},
+		{"it should match different format", "fix-for-TICKET-1234", true},
+		{"it should not match with no digits", "TICKET-", false},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.Desc, func(t *testing.T) {
-			got := matchTicketNumber("TICKET", tc.msg)
+			got := checkBoardMatchesBranch("TICKET", tc.msg)
 			assertEqualBools(t, tc.want, got)
+		})
+	}
+}
+
+func TestGetTicketNumberFromString(t *testing.T) {
+	cases := []struct {
+		Desc string
+		msg  string
+		sub  string
+		want string
+	}{
+		{"it should return the ticket number", "TICKET-1234", "TICKET", "TICKET-1234"},
+		{"it should return when ticket is not at the beginning", "this is a TICKET-1234", "TICKET", "TICKET-1234"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.Desc, func(t *testing.T) {
+			got := getTicketNumberFromString(tc.msg, tc.sub)
+			assertEqualStrings(t, tc.want, got)
 		})
 	}
 }
