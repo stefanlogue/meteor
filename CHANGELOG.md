@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.24.4](https://github.com/stefanlogue/meteor/releases/tag/v0.24.4) - 2024-12-12
+
 ## [v0.24.3](https://github.com/stefanlogue/meteor/releases/tag/v0.24.3) - 2024-12-12
 ### Fixed
 - Ticket number incorrectly pulled from `git` when different format used
