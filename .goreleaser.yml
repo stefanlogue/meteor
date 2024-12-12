@@ -28,7 +28,7 @@ brews:
 scoops:
   - name: meteor
     depends: ["git"]
-    homepage: "https://github.com/stefanlogue/meteor"
+    homepage: "https://github.com/stefanlogue/scoops"
     license: MIT
     repository:
       owner: stefanlogue
