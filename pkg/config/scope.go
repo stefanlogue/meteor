@@ -17,5 +17,8 @@ func (s *Scopes) Options() []huh.Option[string] {
 	for _, scope := range scopes {
 		items = append(items, huh.NewOption(scope.Name, scope.Name))
 	}
+	items = append(items, huh.Option[string]{})
+	copy(items[1:], items)
+	items[0] = huh.NewOption("no scopes", "")
 	return items
 }
