@@ -19,6 +19,6 @@ func (s *Scopes) Options() []huh.Option[string] {
 	}
 	items = append(items, huh.Option[string]{})
 	copy(items[1:], items)
-	items[0] = huh.NewOption("no scopes", "")
+	items[0] = huh.NewOption("none", "")
 	return items
 }
