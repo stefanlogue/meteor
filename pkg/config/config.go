@@ -17,6 +17,7 @@ type Config struct {
 	Prefixes                  Prefixes  `json:"prefixes"`
 	Coauthors                 CoAuthors `json:"coauthors"`
 	Boards                    Boards    `json:"boards"`
+	Scopes                    Scopes    `json:"scopes"`
 }
 
 // New returns a new Config

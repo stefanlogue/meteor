@@ -27,6 +27,6 @@ func (p *CoAuthors) Options() []huh.Option[string] {
 	}
 	items = append(items, huh.Option[string]{})
 	copy(items[1:], items)
-	items[0] = huh.NewOption[string]("no coauthors", "none")
+	items[0] = huh.NewOption("no coauthors", "none")
 	return items
 }

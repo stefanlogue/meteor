@@ -155,6 +155,22 @@ func main() {
 		}
 	}
 
+	// if the user has specified scopes in their config, use a select input, otherwise use a text input
+	var scopeInput huh.Field
+	if len(config.Scopes) > 0 {
+		scopeInput = huh.NewSelect[string]().
+			Title("Scope").
+			Description("Choose a scope for the changes").
+			Options(config.Scopes...).
+			Value(&newCommit.Scope)
+	} else {
+		scopeInput = huh.NewInput().
+			Title("Scope").
+			Description("Specify a scope of the changes").
+			CharLimit(16).
+			Value(&newCommit.Scope)
+	}
+
 	mainForm := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
@@ -168,11 +184,7 @@ func main() {
 				Affirmative("Yes!").
 				Negative("Nope.").
 				Value(&newCommit.IsBreakingChange),
-			huh.NewInput().
-				Title("Scope").
-				Description("Specify a scope of the change").
-				CharLimit(16).
-				Value(&newCommit.Scope),
+			scopeInput,
 		),
 		huh.NewGroup(
 			huh.NewMultiSelect[string]().
