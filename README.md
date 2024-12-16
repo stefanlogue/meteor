@@ -77,6 +77,9 @@ following to the `boards` array:
 If you want to define a set of predefined scopes to select from rather than
 typing the scope, a `scopes` array can be added to your config:
 
+> [!WARNING]
+> Setting predefined scopes removes the ability to type the scope
+
 ```json
 {
   "scopes": [
@@ -85,9 +88,6 @@ typing the scope, a `scopes` array can be added to your config:
   ]
 }
 ```
-
-> [!WARNING]
-> Setting predefined scopes removes the ability to type the scope
 
 ### Message Templates
 
