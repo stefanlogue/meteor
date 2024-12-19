@@ -3,11 +3,10 @@ from datetime import datetime
 from pathlib import Path
 
 TAG = os.environ["TAG"]
-VERSION = TAG[1:]
 
 
 def main():
-    print(f"Preparing changelog for {TAG}")
+    print(f"Preparing changelog for v{TAG}")
     changelog = Path("CHANGELOG.md")
 
     with changelog.open() as f:
@@ -18,7 +17,7 @@ def main():
         line = lines[i]
         if line.startswith("## Unreleased"):
             insert_index = i + 1
-        elif line.startswith(f"## [v{VERSION}]"):
+        elif line.startswith(f"## [v{TAG}]"):
             print("CHANGELOG already up-to-date")
             return
         elif line.startswith("## [v"):
@@ -30,7 +29,7 @@ def main():
     lines.insert(insert_index, "\n")
     lines.insert(
         insert_index + 1,
-        f"## [v{VERSION}](https://github.com/stefanlogue/meteor/releases/tag/v{VERSION}) - "
+        f"## [v{TAG}](https://github.com/stefanlogue/meteor/releases/tag/v{TAG}) - "
         f"{datetime.now().strftime('%Y-%m-%d')}\n",
     )
 
