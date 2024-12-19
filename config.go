@@ -21,6 +21,7 @@ type LoadConfigReturn struct {
 	Prefixes                  []huh.Option[string]
 	Coauthors                 []huh.Option[string]
 	Boards                    []huh.Option[string]
+	Scopes                    []huh.Option[string]
 	CommitTitleCharLimit      int
 	ShowIntro                 bool
 }
@@ -89,6 +90,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		Prefixes:                  c.Prefixes.Options(),
 		Coauthors:                 c.Coauthors.Options(),
 		Boards:                    c.Boards.Options(),
+		Scopes:                    c.Scopes.Options(),
 		CommitTitleCharLimit:      *c.CommitTitleCharLimit,
 		ShowIntro:                 *c.ShowIntro,
 	}, nil
