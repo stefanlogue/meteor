@@ -155,6 +155,12 @@ func main() {
 		}
 	}
 
+	typeInput := huh.NewSelect[string]().
+		Title("Type").
+		Description("Select the type of change that you're committing").
+		Options(config.Prefixes...).
+		Value(&newCommit.Type)
+
 	// if the user has specified scopes in their config, use a select input, otherwise use a text input
 	var scopeInput huh.Field
 	if len(config.Scopes) > 0 {
@@ -171,13 +177,11 @@ func main() {
 			Value(&newCommit.Scope)
 	}
 
-	mainForm := huh.NewForm(
-		huh.NewGroup(
-			huh.NewSelect[string]().
-				Title("Type").
-				Description("Select the type of change that you're committing").
-				Options(config.Prefixes...).
-				Value(&newCommit.Type),
+	// if the user has specified for asking breaking change, add a confirm input to the main group
+	var mainGroup *huh.Group
+	if config.AskBreakingChange {
+		mainGroup = huh.NewGroup(
+			typeInput,
 			huh.NewConfirm().
 				Title("Breaking Change").
 				Description("Is this a breaking change?").
@@ -185,7 +189,13 @@ func main() {
 				Negative("Nope.").
 				Value(&newCommit.IsBreakingChange),
 			scopeInput,
-		),
+		)
+	} else {
+		mainGroup = huh.NewGroup(typeInput, scopeInput)
+	}
+
+	mainForm := huh.NewForm(
+		mainGroup,
 		huh.NewGroup(
 			huh.NewMultiSelect[string]().
 				Title("Coauthors").

@@ -18,6 +18,7 @@ type Config struct {
 	Coauthors                 CoAuthors `json:"coauthors"`
 	Boards                    Boards    `json:"boards"`
 	Scopes                    Scopes    `json:"scopes"`
+	AskBreakingChange         *bool     `json:"askBreakingChange"`
 }
 
 // New returns a new Config

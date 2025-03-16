@@ -24,6 +24,7 @@ type LoadConfigReturn struct {
 	Scopes                    []huh.Option[string]
 	CommitTitleCharLimit      int
 	ShowIntro                 bool
+	AskBreakingChange         bool
 }
 
 // loadConfig loads the config file from the current directory or any parent
@@ -37,6 +38,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			Prefixes:                  config.DefaultPrefixes,
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
 			ShowIntro:                 true,
+			AskBreakingChange:         true,
 		}, nil
 	}
 
@@ -51,12 +53,18 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
 			ShowIntro:                 true,
+			AskBreakingChange:         true,
 		}, fmt.Errorf("error parsing config file: %w", err)
 	}
 
 	if c.ShowIntro == nil {
 		showIntro := true
 		c.ShowIntro = &showIntro
+	}
+
+	if c.AskBreakingChange == nil {
+		askBreakingChange := true
+		c.AskBreakingChange = &askBreakingChange
 	}
 
 	if c.CommitTitleCharLimit == nil || *c.CommitTitleCharLimit < defaultCommitTitleCharLimit {
@@ -93,5 +101,6 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		Scopes:                    c.Scopes.Options(),
 		CommitTitleCharLimit:      *c.CommitTitleCharLimit,
 		ShowIntro:                 *c.ShowIntro,
+		AskBreakingChange:         *c.AskBreakingChange,
 	}, nil
 }
