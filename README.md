@@ -120,3 +120,13 @@ your config:
   "showIntro": false
 }
 ```
+
+### Breaking Change
+
+If you want to skip the breaking change dialog, add the following to your config:
+
+```json
+{
+  "askBreakingChange": false
+}
+```
