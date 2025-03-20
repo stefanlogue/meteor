@@ -2,7 +2,7 @@
 
 set -e
 
-export TAG=$(svu next --force-patch-increment --strip-prefix)
+export TAG=$(svu next --always --tag.prefix='')
 
 read -p "Creating new release for v$TAG. Do you want to continue? [Y/n] " prompt
 
