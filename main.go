@@ -40,11 +40,12 @@ func isFlagPassed(name string) bool {
 }
 
 var (
-	version   = "dev"
-	debugMode bool
-	skipIntro bool
-	FS        afero.Fs     = afero.NewOsFs()
-	AFS       *afero.Afero = &afero.Afero{Fs: FS}
+	version            = "dev"
+	debugMode          bool
+	skipIntro          bool
+	skipBreakingChange bool
+	FS                 afero.Fs     = afero.NewOsFs()
+	AFS                *afero.Afero = &afero.Afero{Fs: FS}
 )
 
 const (
@@ -58,6 +59,7 @@ func init() {
 	flag.BoolP(AsGitEditor, "e", false, "used as GIT_EDITOR")
 	flag.BoolVarP(&skipIntro, "skip-intro", "s", false, "skip intro splash")
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
+	flag.BoolVarP(&skipBreakingChange, "skip-breaking-change", "b", false, "skip breaking change prompt")
 	flag.Parse()
 	if isFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
@@ -155,6 +157,12 @@ func main() {
 		}
 	}
 
+	typeInput := huh.NewSelect[string]().
+		Title("Type").
+		Description("Select the type of change that you're committing").
+		Options(config.Prefixes...).
+		Value(&newCommit.Type)
+
 	// if the user has specified scopes in their config, use a select input, otherwise use a text input
 	var scopeInput huh.Field
 	if len(config.Scopes) > 0 {
@@ -171,13 +179,13 @@ func main() {
 			Value(&newCommit.Scope)
 	}
 
-	mainForm := huh.NewForm(
-		huh.NewGroup(
-			huh.NewSelect[string]().
-				Title("Type").
-				Description("Select the type of change that you're committing").
-				Options(config.Prefixes...).
-				Value(&newCommit.Type),
+	// if the user has specified for asking breaking change, add a confirm input to the main group
+	var mainGroup *huh.Group
+	if skipBreakingChange {
+		mainGroup = huh.NewGroup(typeInput, scopeInput)
+	} else {
+		mainGroup = huh.NewGroup(
+			typeInput,
 			huh.NewConfirm().
 				Title("Breaking Change").
 				Description("Is this a breaking change?").
@@ -185,7 +193,11 @@ func main() {
 				Negative("Nope.").
 				Value(&newCommit.IsBreakingChange),
 			scopeInput,
-		),
+		)
+	}
+
+	mainForm := huh.NewForm(
+		mainGroup,
 		huh.NewGroup(
 			huh.NewMultiSelect[string]().
 				Title("Coauthors").
