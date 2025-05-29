@@ -11,6 +11,7 @@ import (
 
 const (
 	defaultCommitTitleCharLimit      = 48
+	defaultCommitBodyCharLimit       = 0
 	defaultMessageTemplate           = "{{.Type}}{{if .Scope}}({{.Scope}}){{end}}{{if .IsBreakingChange}}!{{end}}: {{.Message}}"
 	defaultMessageWithTicketTemplate = "{{.TicketNumber}}{{if .Scope}}({{.Scope}}){{end}}{{if .IsBreakingChange}}!{{end}}: <{{.Type}}> {{.Message}}"
 )
@@ -23,6 +24,7 @@ type LoadConfigReturn struct {
 	Boards                    []huh.Option[string]
 	Scopes                    []huh.Option[string]
 	CommitTitleCharLimit      int
+	CommitBodyCharLimit       int
 	ShowIntro                 bool
 }
 
@@ -36,6 +38,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
 			Prefixes:                  config.DefaultPrefixes,
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
+			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
 			ShowIntro:                 true,
 		}, nil
 	}
@@ -50,6 +53,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			MessageTemplate:           defaultMessageTemplate,
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
+			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
 			ShowIntro:                 true,
 		}, fmt.Errorf("error parsing config file: %w", err)
 	}
@@ -62,6 +66,11 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	if c.CommitTitleCharLimit == nil || *c.CommitTitleCharLimit < defaultCommitTitleCharLimit {
 		commitTitleCharLimit := defaultCommitTitleCharLimit
 		c.CommitTitleCharLimit = &commitTitleCharLimit
+	}
+
+	if c.CommitBodyCharLimit == nil || *c.CommitBodyCharLimit < defaultCommitBodyCharLimit {
+		commitBodyCharLimit := defaultCommitBodyCharLimit
+		c.CommitBodyCharLimit = &commitBodyCharLimit
 	}
 
 	messageTemplate := defaultMessageTemplate
@@ -92,6 +101,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		Boards:                    c.Boards.Options(),
 		Scopes:                    c.Scopes.Options(),
 		CommitTitleCharLimit:      *c.CommitTitleCharLimit,
+		CommitBodyCharLimit:       *c.CommitBodyCharLimit,
 		ShowIntro:                 *c.ShowIntro,
 	}, nil
 }

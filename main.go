@@ -237,7 +237,7 @@ func main() {
 			huh.NewText().
 				Value(&newCommit.Body).
 				Title("Body").
-				CharLimit(0).
+				CharLimit(config.CommitBodyCharLimit).
 				Lines(8),
 		),
 		huh.NewGroup(
