@@ -21,17 +21,17 @@ jobs:
         if: ${{ github.event.head_commit.message != 'Automated version bump commit' }}
         run: |
           echo "currentversion=$(svu current --tag.prefix='')" >> $GITHUB_ENV
-          echo "nextVersion=$(svu next --tag.prefix='')" >> $GITHUB_ENV
+          echo "nextversion=$(svu next --tag.prefix='')" >> $GITHUB_ENV
 
       - name: Print versions
         if: ${{ github.event.head_commit.message != 'Automated version bump commit' }}
         run: |
-          echo "Current Version: $currentVersion"
-          echo "Next Version: $nextVersion"
+          echo "Current Version: ${{ env.currentversion }}"
+          echo "Next Version: ${{ env.nextversion }}"
 
       - name: Commit version bump
         id: commitversionbump
-        if: ${{ github.event.head_commit.message != 'Automated version bump commit' && $currentVersion != nextVersion }}
+        if: ${{ github.event.head_commit.message != 'Automated version bump commit' && env.currentversion != env.nextversion }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Bumped to v$nextVersion"
