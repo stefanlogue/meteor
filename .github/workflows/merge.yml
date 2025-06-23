@@ -1,0 +1,38 @@
+name: merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  versioning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Install SVU"
+        if: ${{ github.event.head_commit.message != 'Automated version bump commit' }}
+        run: |
+          echo 'deb [trusted=yes] https://apt.fury.io/caarlos0/ /' | sudo tee /etc/apt/sources.list.d/caarlos0.list
+          sudo apt update
+          sudo apt install svu
+
+      - name: Get current version and calculate next version
+        id: getversion
+        if: ${{ github.event.head_commit.message != 'Automated version bump commit' }}
+        run: |
+          echo "currentversion=$(svu current --tag.prefix='')" >> $GITHUB_ENV
+          echo "nextVersion=$(svu next --tag.prefix='')" >> $GITHUB_ENV
+
+      - name: Print versions
+        if: ${{ github.event.head_commit.message != 'Automated version bump commit' }}
+        run: |
+          echo "Current Version: $currentVersion"
+          echo "Next Version: $nextVersion"
+
+      - name: Commit version bump
+        id: commitversionbump
+        if: ${{ github.event.head_commit.message != 'Automated version bump commit' && $currentVersion != nextVersion }}
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Bumped to v$nextVersion"
+          tagging_message: "v$nextVersion"
