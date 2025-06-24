@@ -270,7 +270,7 @@ func main() {
 		fail(ErrorString, err)
 	}
 
-	if config.CommitBodyLineLength > minimumCommitBodyLineLength {
+	if config.CommitBodyLineLength >= minimumCommitBodyLineLength {
 		newCommit.Body = wordWrap(newCommit.Body, config.CommitBodyLineLength)
 	}
 

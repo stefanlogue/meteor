@@ -79,7 +79,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		c.CommitBodyCharLimit = &commitBodyCharLimit
 	}
 
-	if c.CommitBodyLineLength == nil || *c.CommitBodyLineLength < defaultCommitBodyLineLength {
+	if c.CommitBodyLineLength == nil || *c.CommitBodyLineLength < minimumCommitBodyLineLength {
 		commitBodyLineLength := defaultCommitBodyLineLength
 		c.CommitBodyLineLength = &commitBodyLineLength
 	}
