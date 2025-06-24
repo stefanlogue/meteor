@@ -3,8 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
@@ -21,17 +19,17 @@ const (
 // 3. IF parent doesn't contain the .meteor.json file, the search will continue until the home directory is reached.
 // 4. If no .meteor.json file is found, look in ~/.config/meteor/config.json
 // 5. If no .meteor.json file is found, return an error
-func FindConfigFile(fs afero.Fs) (string, error) {
+func FindConfigFile(fs afero.Fs, getWD func() (string, error), getHome func() (string, error)) (string, error) {
 	if _, err := fs.Stat(configFile); err == nil {
-		return path.Join("./", configFile), nil
+		return filepath.Join("./", configFile), nil
 	}
 
-	homeDir, err := os.UserHomeDir()
+	homeDir, err := getHome()
 	if err != nil {
 		return "", fmt.Errorf("error getting home dir: %w", err)
 	}
 
-	currentDir, err := os.Getwd()
+	currentDir, err := getWD()
 	if err != nil {
 		return "", fmt.Errorf("error getting current dir: %w", err)
 	}
@@ -45,14 +43,14 @@ func FindConfigFile(fs afero.Fs) (string, error) {
 		filePath := filepath.Join(currentDir, configFile)
 		log.Debug("checking for config file", "path", filePath)
 
-		if _, err := fs.Open(filePath); err == nil {
+		if _, err := fs.Stat(filePath); err == nil {
 			return filePath, nil
 		}
 
-		currentDir += "/.."
+		currentDir = filepath.Join(currentDir, "..")
 	}
 
-	xdgConfigFile := path.Join(homeDir, ".config/meteor/config.json")
+	xdgConfigFile := filepath.Join(homeDir, ".config/meteor/config.json")
 	log.Debug("checking for config file", "path", xdgConfigFile)
 	if _, err := fs.Stat(xdgConfigFile); err == nil {
 		return xdgConfigFile, nil

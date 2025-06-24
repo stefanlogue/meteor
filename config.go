@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/log"
@@ -30,7 +31,7 @@ type LoadConfigReturn struct {
 
 // loadConfig loads the config file from the current directory or any parent
 func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
-	filePath, err := config.FindConfigFile(fs)
+	filePath, err := config.FindConfigFile(fs, os.Getwd, os.UserHomeDir)
 	if err != nil {
 		log.Debug("Error finding config file", "error", err)
 		return LoadConfigReturn{
