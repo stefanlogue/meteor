@@ -38,10 +38,6 @@ one for your personal work, one for your actual work, one for open source work
 etc. For global configurations you can create a `config.json` file in the
 `~/.config/meteor/` directory.
 
-### Boards
-
-![Demo with boards](demos/demo-with-boards.gif)
-
 The content should be in the following format:
 
 ```json
@@ -59,9 +55,14 @@ The content should be in the following format:
     { "type":  "bug", "description":  "introducing a bug"}
   ],
   "commitTitleCharLimit": 60,
-  "commitBodyCharLimit": 60
+  "commitBodyCharLimit": 60,
+  "commitBodyLineLength": 40
 }
 ```
+
+### Boards
+
+![Demo with boards](demos/demo-with-boards.gif)
 
 If you use boards (Jira etc) but need a way to have commits without one, add the
 following to the `boards` array:
@@ -89,6 +90,11 @@ typing the scope, a `scopes` array can be added to your config:
   ]
 }
 ```
+
+### Line wrapping
+
+To enforce line wrapping on the commit body, set the `commitBodyLineLength`
+config option to any integer greater than or equal to 20.
 
 ### Message Templates
 
