@@ -46,5 +46,6 @@ jobs:
           echo "Next Version: ${{ env.nextversion }}"
 
       - uses: thejeff77/action-push-tag@v1.0.0
+        if: ${{ env.nextversion != env.currentversion }}
         with:
           tag: v${{ env.nextversion }}
