@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"path"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
@@ -22,7 +21,7 @@ const (
 // 5. If no .meteor.json file is found, return an error
 func FindConfigFile(fs afero.Fs, getwd func() (string, error), getHome func() (string, error)) (string, error) {
 	if _, err := fs.Stat(configFile); err == nil {
-		return path.Join("./", configFile), nil
+		return filepath.Join("./", configFile), nil
 	}
 
 	homeDir, err := getHome()
@@ -51,7 +50,7 @@ func FindConfigFile(fs afero.Fs, getwd func() (string, error), getHome func() (s
 		currentDir = filepath.Join(currentDir, "..")
 	}
 
-	xdgConfigFile := path.Join(homeDir, ".config/meteor/config.json")
+	xdgConfigFile := filepath.Join(homeDir, ".config/meteor/config.json")
 	log.Debug("checking for config file", "path", xdgConfigFile)
 	if _, err := fs.Stat(xdgConfigFile); err == nil {
 		return xdgConfigFile, nil
