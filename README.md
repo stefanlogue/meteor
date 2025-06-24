@@ -22,6 +22,13 @@ brew install --cask meteor
 > If you previously installed `meteor` from the formula, you'll need to
 > uninstall it before installing it from the cask
 
+### Scoop
+
+```console
+scoop bucket add stefanlogue https://github.com/stefanlogue/scoops
+scoop install stefanlogue/meteor
+```
+
 ### Go
 
 Install with Go (1.21+):
