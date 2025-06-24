@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
 
       - name: "Cache SVU binary"
         if: ${{ github.event.head_commit.message != 'Automated version bump commit' }}
@@ -44,10 +45,6 @@ jobs:
           echo "Current Version: ${{ env.currentversion }}"
           echo "Next Version: ${{ env.nextversion }}"
 
-      - name: Commit version bump
-        id: commitversionbump
-        if: ${{ github.event.head_commit.message != 'Automated version bump commit' && env.currentversion != env.nextversion }}
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: actions-ecosystem/action-push-tag@v1
         with:
-          commit_message: "Bumped to v${{ env.nextversion }}"
-          tagging_message: "v${{ env.nextversion }}"
+          tag: v${{ env.nextversion }}
