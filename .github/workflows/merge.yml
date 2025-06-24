@@ -45,6 +45,6 @@ jobs:
           echo "Current Version: ${{ env.currentversion }}"
           echo "Next Version: ${{ env.nextversion }}"
 
-      - uses: actions-ecosystem/action-push-tag@v1
+      - uses: thejeff77/action-push-tag@v1.0.0
         with:
           tag: v${{ env.nextversion }}
