@@ -270,6 +270,10 @@ func main() {
 		fail(ErrorString, err)
 	}
 
+	if config.CommitBodyLineLength > minimumCommitBodyLineLength {
+		newCommit.Body = wordWrap(newCommit.Body, config.CommitBodyLineLength)
+	}
+
 	if len(newCommit.Coauthors) > 0 {
 		newCommit.Body = newCommit.Body + buildCoauthorString(newCommit.Coauthors)
 	}

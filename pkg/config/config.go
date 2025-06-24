@@ -13,6 +13,7 @@ type Config struct {
 	ShowIntro                 *bool     `json:"showIntro"`
 	CommitTitleCharLimit      *int      `json:"commitTitleCharLimit"`
 	CommitBodyCharLimit       *int      `json:"commitBodyCharLimit"`
+	CommitBodyLineLength      *int      `json:"commitBodyLineLength"`
 	MessageTemplate           *string   `json:"messageTemplate"`
 	MessageWithTicketTemplate *string   `json:"messageWithTicketTemplate"`
 	Prefixes                  Prefixes  `json:"prefixes"`
