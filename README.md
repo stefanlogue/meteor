@@ -15,8 +15,12 @@ supported in `git commit` will still work.
 
 ```console
 brew tap stefanlogue/tools
-brew install meteor
+brew install --cask meteor
 ```
+
+> [!IMPORTANT]
+> If you previously installed `meteor` from the formula, you'll need to
+> uninstall it before installing it from the cask
 
 ### Go
 
