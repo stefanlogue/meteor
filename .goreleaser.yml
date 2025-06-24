@@ -83,3 +83,4 @@ announce:
   bluesky:
     enabled: true
     username: stefanlogue.dev
+    message_template: "{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}\n\n#go #golang #devops"
