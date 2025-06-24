@@ -9,12 +9,23 @@ jobs:
   versioning:
     runs-on: ubuntu-latest
     steps:
+      - name: "Cache SVU binary"
+        if: ${{ github.event.head_commit.message != 'Automated version bump commit' }}
+        uses: actions/cache@v3
+        with:
+          path: /usr/bin/svu
+          key: svu-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            svu-${{ runner.os }}-
+
       - name: "Install SVU"
         if: ${{ github.event.head_commit.message != 'Automated version bump commit' }}
         run: |
-          echo 'deb [trusted=yes] https://apt.fury.io/caarlos0/ /' | sudo tee /etc/apt/sources.list.d/caarlos0.list
-          sudo apt update
-          sudo apt install svu
+          if [ ! -f /usr/bin/svu ]; then
+            echo 'deb [trusted=yes] https://apt.fury.io/caarlos0/ /' | sudo tee /etc/apt/sources.list.d/caarlos0.list
+            sudo apt update
+            sudo apt install svu
+          fi
 
       - name: Get current version and calculate next version
         id: getversion
