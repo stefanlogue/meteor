@@ -34,5 +34,5 @@ jobs:
         if: ${{ github.event.head_commit.message != 'Automated version bump commit' && env.currentversion != env.nextversion }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Bumped to v$nextVersion"
-          tagging_message: "v$nextVersion"
+          commit_message: "Bumped to v${{ env.nextversion }}"
+          tagging_message: "v${{ env.nextversion }}"
