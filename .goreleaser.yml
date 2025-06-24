@@ -18,14 +18,22 @@ builds:
       - amd64
       - arm64
 archives:
-  - format: zip
+  - formats: [zip]
     name_template: "{{ .Binary}}-{{ .Os }}-{{ .Arch }}"
-brews:
+homebrew_casks:
   - name: meteor
     homepage: https://github.com/stefanlogue/homebrew-tools
+    conflicts:
+      - formula: meteor
     repository:
       owner: stefanlogue
       name: homebrew-tools
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/meteor"]
+          end
 scoops:
   - name: meteor
     depends: ["git"]
