@@ -15,12 +15,12 @@ func TestFindConfigFile(t *testing.T) {
 	t.Run("no config file", func(t *testing.T) {
 		fs := afero.NewMemMapFs()
 		currentDir := "/home/user/project"
-		expepcted := ""
+		expected := ""
 		got, err := FindConfigFile(fs,
 			func() (string, error) { return currentDir, nil },
 			func() (string, error) { return homeDir, nil },
 		)
-		assertEqual(t, expepcted, got)
+		assertEqual(t, expected, got)
 		assertIsError(t, err)
 	})
 	t.Run("config file in current directory", func(t *testing.T) {
