@@ -13,6 +13,8 @@ import (
 const (
 	defaultCommitTitleCharLimit      = 48
 	defaultCommitBodyCharLimit       = 0
+	defaultCommitBodyLineLength      = 0
+	minimumCommitBodyLineLength      = 20
 	defaultMessageTemplate           = "{{.Type}}{{if .Scope}}({{.Scope}}){{end}}{{if .IsBreakingChange}}!{{end}}: {{.Message}}"
 	defaultMessageWithTicketTemplate = "{{.TicketNumber}}{{if .Scope}}({{.Scope}}){{end}}{{if .IsBreakingChange}}!{{end}}: <{{.Type}}> {{.Message}}"
 )
@@ -26,6 +28,7 @@ type LoadConfigReturn struct {
 	Scopes                    []huh.Option[string]
 	CommitTitleCharLimit      int
 	CommitBodyCharLimit       int
+	CommitBodyLineLength      int
 	ShowIntro                 bool
 }
 
@@ -40,6 +43,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			Prefixes:                  config.DefaultPrefixes,
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
 			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
+			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
 		}, nil
 	}
@@ -55,6 +59,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
 			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
+			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
 		}, fmt.Errorf("error parsing config file: %w", err)
 	}
@@ -72,6 +77,11 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	if c.CommitBodyCharLimit == nil || *c.CommitBodyCharLimit < defaultCommitBodyCharLimit {
 		commitBodyCharLimit := defaultCommitBodyCharLimit
 		c.CommitBodyCharLimit = &commitBodyCharLimit
+	}
+
+	if c.CommitBodyLineLength == nil || *c.CommitBodyLineLength < minimumCommitBodyLineLength {
+		commitBodyLineLength := defaultCommitBodyLineLength
+		c.CommitBodyLineLength = &commitBodyLineLength
 	}
 
 	messageTemplate := defaultMessageTemplate
@@ -103,6 +113,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		Scopes:                    c.Scopes.Options(),
 		CommitTitleCharLimit:      *c.CommitTitleCharLimit,
 		CommitBodyCharLimit:       *c.CommitBodyCharLimit,
+		CommitBodyLineLength:      *c.CommitBodyLineLength,
 		ShowIntro:                 *c.ShowIntro,
 	}, nil
 }
