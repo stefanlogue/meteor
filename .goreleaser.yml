@@ -80,3 +80,6 @@ changelog:
 announce:
   linkedin:
     enabled: false
+  bluesky:
+    enabled: true
+    username: stefanlogue.dev
