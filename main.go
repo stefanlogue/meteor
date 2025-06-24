@@ -144,7 +144,7 @@ func main() {
 				huh.NewInput().
 					Title("Ticket number").
 					Description("The ticket number associated with this commit").
-					CharLimit(10).
+					CharLimit(24).
 					Value(&newCommit.TicketNumber),
 			).WithHideFunc(func() bool {
 				return len(config.Boards) < 1
