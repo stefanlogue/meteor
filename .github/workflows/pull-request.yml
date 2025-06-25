@@ -31,13 +31,13 @@ jobs:
       - name: Install dependencies
         run: go get .
       - name: test
-        run: go test -v -coverprofile=./cov.out ./...
+        run: go test -coverprofile=cov.out ./...
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
           args: -no-fail -fmt=sonarqube -out report.json ./...
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
