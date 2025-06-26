@@ -81,11 +81,12 @@ func init() {
 }
 
 func main() {
-	if err := checkGitInPath(); err != nil {
+	gitPath, err := getGitPath()
+	if err != nil {
 		fail(ErrorString, err)
 	}
 
-	gitRoot, err := findGitDir()
+	gitRoot, err := findGitDir(gitPath)
 	if err != nil {
 		fail(ErrorString, err)
 	}

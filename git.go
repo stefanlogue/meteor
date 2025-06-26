@@ -12,17 +12,18 @@ import (
 
 const maxGitRecursion = 32
 
-// checkGitInPath checks if git is in PATH and returns an error if not
-func checkGitInPath() error {
-	if _, err := exec.LookPath("git"); err != nil {
-		return fmt.Errorf("git not found in PATH: %w", err)
+// getGitPath checks if git is in PATH and returns an error if not
+func getGitPath() (string, error) {
+	path, err := exec.LookPath("git")
+	if err != nil {
+		return "", fmt.Errorf("git not found in PATH: %w", err)
 	}
-	return nil
+	return path, nil
 }
 
 // findGitDir returns the root of the git repository
-func findGitDir() (string, error) {
-	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+func findGitDir(gitPath string) (string, error) {
+	cmd := exec.Command(gitPath, "rev-parse", "--show-toplevel")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf(string(out))
