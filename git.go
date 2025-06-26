@@ -10,9 +10,7 @@ import (
 	"github.com/alessio/shellescape"
 )
 
-const maxGitRecursion = 32
-
-// getGitPath checks if git is in PATH and returns an error if not
+// getGitPath returns the path to the git executable if git is in PATH and returns an error if not
 func getGitPath() (string, error) {
 	path, err := exec.LookPath("git")
 	if err != nil {
