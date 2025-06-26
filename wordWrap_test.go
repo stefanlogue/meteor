@@ -10,6 +10,12 @@ func TestWordWrap(t *testing.T) {
 		expected string
 	}{
 		{
+			desc:     "empty string",
+			input:    "",
+			width:    10,
+			expected: "",
+		},
+		{
 			desc:     "wrap short text",
 			input:    "Hello world",
 			width:    20,
