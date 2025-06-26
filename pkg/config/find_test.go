@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -83,6 +84,27 @@ func TestFindConfigFile(t *testing.T) {
 		)
 		assertEqual(t, expected, got)
 		assertIsNotError(t, err)
+	})
+	t.Run("error in current directory function", func(t *testing.T) {
+		fs := afero.NewMemMapFs()
+		expected := ""
+		got, err := FindConfigFile(fs,
+			func() (string, error) { return "", fmt.Errorf("error getting cwd") },
+			func() (string, error) { return homeDir, nil },
+		)
+		assertEqual(t, expected, got)
+		assertIsError(t, err)
+	})
+	t.Run("error in home directory function", func(t *testing.T) {
+		fs := afero.NewMemMapFs()
+		currentDir := "/home/user/project"
+		expected := ""
+		got, err := FindConfigFile(fs,
+			func() (string, error) { return currentDir, nil },
+			func() (string, error) { return "", fmt.Errorf("error getting home dir") },
+		)
+		assertEqual(t, expected, got)
+		assertIsError(t, err)
 	})
 }
 
