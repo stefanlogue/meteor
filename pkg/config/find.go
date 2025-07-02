@@ -34,7 +34,7 @@ func FindConfigFile(fs afero.Fs, getWD func() (string, error), getHome func() (s
 		return "", fmt.Errorf("error getting current dir: %w", err)
 	}
 
-	for {
+	for currentDir != "/" {
 		rel, _ := filepath.Rel(homeDir, currentDir)
 		if rel == ".." {
 			break
