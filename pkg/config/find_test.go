@@ -69,9 +69,9 @@ func TestFindConfigFile(t *testing.T) {
 		assertEqual(t, expected, got)
 		assertIsNotError(t, err)
 	})
-	t.Run("WD not in home directory", func(t *testing.T) {
+	t.Run("config file in xdg config dir", func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		currentDir := "/var/www/hosts/project"
+		currentDir := "/home/user/project"
 		configPath := filepath.Join(homeDir, ".config/meteor/config.json")
 		fs.MkdirAll(filepath.Dir(configPath), 0755)
 		content := "{}"
@@ -85,9 +85,9 @@ func TestFindConfigFile(t *testing.T) {
 		assertEqual(t, expected, got)
 		assertIsNotError(t, err)
 	})
-	t.Run("config file in xdg config dir", func(t *testing.T) {
+	t.Run("WD not in home directory", func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		currentDir := "/home/user/project"
+		currentDir := "/var/www/hosts/project"
 		configPath := filepath.Join(homeDir, ".config/meteor/config.json")
 		fs.MkdirAll(filepath.Dir(configPath), 0755)
 		content := "{}"
