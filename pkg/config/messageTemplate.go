@@ -14,7 +14,11 @@ func ConvertTemplate(t string) (string, error) {
 	}
 	t = strings.Replace(t, ":", "{{if .IsBreakingChange}}!{{end}}:", 1)
 	t = strings.ReplaceAll(t, "@type", "{{.Type}}")
-	t = strings.ReplaceAll(t, "(@scope)", "{{if .Scope}}({{.Scope}}){{end}}")
+	t = strings.ReplaceAll(
+		t,
+		"(@scope)",
+		"{{if .Scopes}}{{printf \"(%s)\" .ScopeValue}}{{end}}",
+	)
 	t = strings.ReplaceAll(t, "@ticket", "{{.TicketNumber}}")
 	t = strings.ReplaceAll(t, "@message", "{{.Message}}")
 	return t, nil

@@ -15,8 +15,8 @@ const (
 	defaultCommitBodyCharLimit       = 0
 	defaultCommitBodyLineLength      = 0
 	minimumCommitBodyLineLength      = 20
-	defaultMessageTemplate           = "{{.Type}}{{if .Scope}}({{.Scope}}){{end}}{{if .IsBreakingChange}}!{{end}}: {{.Message}}"
-	defaultMessageWithTicketTemplate = "{{.TicketNumber}}{{if .Scope}}({{.Scope}}){{end}}{{if .IsBreakingChange}}!{{end}}: <{{.Type}}> {{.Message}}"
+	defaultMessageTemplate           = "{{.Type}}{{if .Scopes}}({{.ScopeValue}}){{end}}{{if .IsBreakingChange}}!{{end}}: {{.Message}}"
+	defaultMessageWithTicketTemplate = "{{.TicketNumber}}{{if .Scopes}}({{.ScopeValue}}){{end}}{{if .IsBreakingChange}}!{{end}}: <{{.Type}}> {{.Message}}"
 )
 
 type LoadConfigReturn struct {
