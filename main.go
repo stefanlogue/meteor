@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 	"text/template"
 	"time"
 
@@ -21,11 +22,21 @@ type Commit struct {
 	Board            string
 	TicketNumber     string
 	Type             string
-	Scope            string
+	Scopes           []string
 	Message          string
 	Body             string
 	Coauthors        []string
 	IsBreakingChange bool
+}
+
+func (c Commit) ScopeValue() string {
+	switch len(c.Scopes) {
+	case 0:
+		return ""
+	case 1:
+		return c.Scopes[0]
+	}
+	return strings.Join(c.Scopes, ",")
 }
 
 // isFlagPassed checks if a flag has been passed
@@ -59,7 +70,13 @@ func init() {
 	flag.BoolP(AsGitEditor, "e", false, "used as GIT_EDITOR")
 	flag.BoolVarP(&skipIntro, "skip-intro", "s", false, "skip intro splash")
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
-	flag.BoolVarP(&skipBreakingChange, "skip-breaking-change", "b", false, "skip breaking change prompt")
+	flag.BoolVarP(
+		&skipBreakingChange,
+		"skip-breaking-change",
+		"b",
+		false,
+		"skip breaking change prompt",
+	)
 	flag.Parse()
 	if isFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
@@ -166,18 +183,20 @@ func main() {
 
 	// if the user has specified scopes in their config, use a select input, otherwise use a text input
 	var scopeInput huh.Field
+	var singleScope string
 	if len(config.Scopes) > 0 {
-		scopeInput = huh.NewSelect[string]().
-			Title("Scope").
+		scopeInput = huh.NewMultiSelect[string]().
+			Title("Scopes").
 			Description("Choose a scope for the changes").
 			Options(config.Scopes...).
-			Value(&newCommit.Scope)
+			Value(&newCommit.Scopes)
 	} else {
+		var singleScope string
 		scopeInput = huh.NewInput().
 			Title("Scope").
 			Description("Specify a scope of the changes").
 			CharLimit(16).
-			Value(&newCommit.Scope)
+			Value(&singleScope)
 	}
 
 	// if the user has specified for asking breaking change, add a confirm input to the main group
@@ -213,6 +232,10 @@ func main() {
 	err = mainForm.Run()
 	if err != nil {
 		fail(ErrorString, err)
+	}
+
+	if len(config.Scopes) == 0 {
+		newCommit.Scopes = []string{singleScope}
 	}
 
 	var tmpl *template.Template
@@ -251,19 +274,29 @@ func main() {
 	).WithKeyMap(&huh.KeyMap{
 		Quit: key.NewBinding(key.WithKeys("ctrl+c"), key.WithHelp("ctrl+c", "quit")),
 		Text: huh.TextKeyMap{
-			Next:    key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "next")),
-			NewLine: key.NewBinding(key.WithKeys("alt+enter", "ctrl+j"), key.WithHelp("alt+enter / ctrl+j", "new line")),
-			Editor:  key.NewBinding(key.WithKeys("ctrl+e"), key.WithHelp("ctrl+e", "open editor")),
-			Prev:    key.NewBinding(key.WithKeys(ShiftTab), key.WithHelp(ShiftTab, "back")),
+			Next: key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "next")),
+			NewLine: key.NewBinding(
+				key.WithKeys("alt+enter", "ctrl+j"),
+				key.WithHelp("alt+enter / ctrl+j", "new line"),
+			),
+			Editor: key.NewBinding(key.WithKeys("ctrl+e"), key.WithHelp("ctrl+e", "open editor")),
+			Prev:   key.NewBinding(key.WithKeys(ShiftTab), key.WithHelp(ShiftTab, "back")),
 		},
 		Input: huh.InputKeyMap{
 			Next: key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "next")),
 		},
 		Confirm: huh.ConfirmKeyMap{
-			Toggle: key.NewBinding(key.WithKeys("left", "right", "h", "l"), key.WithHelp("left / right", "toggle")),
-			Prev:   key.NewBinding(key.WithKeys(ShiftTab), key.WithHelp(ShiftTab, "back")),
-			Submit: key.NewBinding(key.WithKeys("enter", "tab"), key.WithHelp("enter / tab", "submit")),
+			Toggle: key.NewBinding(
+				key.WithKeys("left", "right", "h", "l"),
+				key.WithHelp("left / right", "toggle"),
+			),
+			Prev: key.NewBinding(key.WithKeys(ShiftTab), key.WithHelp(ShiftTab, "back")),
+			Submit: key.NewBinding(
+				key.WithKeys("enter", "tab"),
+				key.WithHelp("enter / tab", "submit"),
+			),
 		},
+		MultiSelect: huh.NewDefaultKeyMap().MultiSelect,
 	}).WithTheme(theme)
 
 	err = messageForm.Run()
@@ -290,7 +323,11 @@ func main() {
 		args = args[1:]
 	}
 
-	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
+	rawCommitCommand, printableCommitCommand := buildCommitCommand(
+		newCommit.Message,
+		newCommit.Body,
+		args,
+	)
 
 	if isFlagPassed(AsGitEditor) {
 		// We intent to do the commit
@@ -304,8 +341,12 @@ func main() {
 
 				fail(
 					"\n%s\n%s\n\n%s\n\n",
-					color.RedString(fmt.Sprintf("It looks like the commit failed.\nError: %s", err)),
-					color.YellowString("To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):"),
+					color.RedString(
+						fmt.Sprintf("It looks like the commit failed.\nError: %s", err),
+					),
+					color.YellowString(
+						"To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):",
+					),
 					color.BlueString(printableCommitCommand),
 				)
 
@@ -324,8 +365,11 @@ func main() {
 		fmt.Printf(
 			"\n%s\n\n%s\n%s\n\n",
 			color.RedString("Commit aborted."),
-			color.YellowString("I've copied the following command to your clipboard, so you can run it again later:"),
-			color.BlueString(printableCommitCommand))
+			color.YellowString(
+				"I've copied the following command to your clipboard, so you can run it again later:",
+			),
+			color.BlueString(printableCommitCommand),
+		)
 
 		return
 	}
@@ -337,7 +381,9 @@ func main() {
 			fail(
 				"\n%s\n%s\n\n%s\n\n",
 				color.RedString(fmt.Sprintf("It looks like the commit failed.\nError: %s", err)),
-				color.YellowString("To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):"),
+				color.YellowString(
+					"To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):",
+				),
 				color.BlueString(printableCommitCommand),
 			)
 		}
