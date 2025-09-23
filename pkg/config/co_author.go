@@ -25,8 +25,5 @@ func (p *CoAuthors) Options() []huh.Option[string] {
 		desc := fmt.Sprintf("%s <%s>", coauthor.Name, coauthor.Email)
 		items = append(items, huh.NewOption(desc, desc))
 	}
-	items = append(items, huh.Option[string]{})
-	copy(items[1:], items)
-	items[0] = huh.NewOption("no coauthors", "none")
 	return items
 }

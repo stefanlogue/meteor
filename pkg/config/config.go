@@ -1,3 +1,4 @@
+// Package config handles loading and parsing the configuration file for the application.
 package config
 
 import (
@@ -20,6 +21,7 @@ type Config struct {
 	Coauthors                 CoAuthors `json:"coauthors"`
 	Boards                    Boards    `json:"boards"`
 	Scopes                    Scopes    `json:"scopes"`
+	ReadContributorsFromGit   *bool     `json:"readContributorsFromGit"`
 }
 
 // New returns a new Config

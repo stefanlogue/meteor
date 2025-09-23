@@ -30,6 +30,7 @@ type LoadConfigReturn struct {
 	CommitBodyCharLimit       int
 	CommitBodyLineLength      int
 	ShowIntro                 bool
+	ReadContributorsFromGit   bool
 }
 
 // loadConfig loads the config file from the current directory or any parent
@@ -115,5 +116,6 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		CommitBodyCharLimit:       *c.CommitBodyCharLimit,
 		CommitBodyLineLength:      *c.CommitBodyLineLength,
 		ShowIntro:                 *c.ShowIntro,
+		ReadContributorsFromGit:   *c.ReadContributorsFromGit,
 	}, nil
 }

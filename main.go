@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
+	"github.com/stefanlogue/meteor/internal/util"
 
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/key"
@@ -196,17 +197,30 @@ func main() {
 			scopeInput,
 		)
 	}
-
+	coAuthors := config.Coauthors
+	if config.ReadContributorsFromGit {
+		additional, err := getComitters([]string{})
+		if err != nil {
+			fail(ErrorString, err)
+		} else {
+			for _, s := range additional {
+				coAuthors = append(coAuthors, huh.NewOption(s, s))
+			}
+			if len(coAuthors) > 0 {
+				coAuthors = util.PrependItem(coAuthors, huh.NewOption("no coauthors", "none"))
+			}
+		}
+	}
 	mainForm := huh.NewForm(
 		mainGroup,
 		huh.NewGroup(
 			huh.NewMultiSelect[string]().
 				Title("Coauthors").
 				Description("Select any coauthors for this commit").
-				Options(config.Coauthors...).
+				Options(coAuthors...).
 				Value(&newCommit.Coauthors),
 		).WithHideFunc(func() bool {
-			return len(config.Coauthors) < 1
+			return len(coAuthors) < 1
 		}),
 	).WithTheme(theme)
 
