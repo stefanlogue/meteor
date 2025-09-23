@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
+	"github.com/stefanlogue/meteor/internal/util"
 
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/key"
@@ -204,6 +205,9 @@ func main() {
 		} else {
 			for _, s := range additional {
 				coAuthors = append(coAuthors, huh.NewOption(s, s))
+			}
+			if len(coAuthors) > 0 {
+				coAuthors = util.PrependItem(coAuthors, huh.NewOption("no coauthors", "none"))
 			}
 		}
 	}

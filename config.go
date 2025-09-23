@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/afero"
-
 	"github.com/stefanlogue/meteor/pkg/config"
 )
 

@@ -64,7 +64,7 @@ func getTicketNumberFromString(str string, sub string) string {
 
 // buildCommitCommand builds the git commit command
 func buildCommitCommand(msg string, body string, osArgs []string) ([]string, string) {
-	args := append([]string{"commit", " -m", msg}, osArgs...)
+	args := append([]string{"commit", "-m", msg}, osArgs...)
 	if body != "" {
 		args = append(args, "-m", body)
 	}
@@ -73,7 +73,7 @@ func buildCommitCommand(msg string, body string, osArgs []string) ([]string, str
 
 // getComitters returns a list of comitters from the git log
 func getComitters(osArgs []string) ([]string, error) {
-	args := append([]string{"log", "--pretty=format:\"%an <%ae>\""}, osArgs...)
+	args := append([]string{"log", "--pretty=format:%an <%ae>"}, osArgs...)
 	getComitters, err := getOutput(args)
 	if err != nil {
 		return nil, err
@@ -113,5 +113,5 @@ func getOutput(command []string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return strings.Split(string(buf.Bytes()), "\n"), nil
+	return strings.Split(buf.String(), "\n"), nil
 }
