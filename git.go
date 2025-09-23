@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -63,11 +64,29 @@ func getTicketNumberFromString(str string, sub string) string {
 
 // buildCommitCommand builds the git commit command
 func buildCommitCommand(msg string, body string, osArgs []string) ([]string, string) {
-	args := append([]string{"commit", "-m", msg}, osArgs...)
+	args := append([]string{"commit", " -m", msg}, osArgs...)
 	if body != "" {
 		args = append(args, "-m", body)
 	}
 	return args, fmt.Sprintf("git %v", shellescape.QuoteCommand(args))
+}
+
+// getComitters returns a list of comitters from the git log
+func getComitters(osArgs []string) ([]string, error) {
+	args := append([]string{"log", "--pretty=format:\"%an <%ae>\""}, osArgs...)
+	getComitters, err := getOutput(args)
+	if err != nil {
+		return nil, err
+	}
+	result := []string{}
+	seen := map[string]bool{}
+	for _, comitter := range getComitters {
+		if _, ok := seen[comitter]; !ok {
+			seen[comitter] = true
+			result = append(result, comitter)
+		}
+	}
+	return result, nil
 }
 
 // commit commits the changes to git
@@ -78,4 +97,21 @@ func commit(command []string) error {
 	cmd.Stderr = os.Stderr
 
 	return cmd.Run()
+}
+
+// getOutput returns the output of a git command
+func getOutput(command []string) ([]string, error) {
+	cmd := exec.Command("git", command...)
+
+	var b []byte
+	buf := bytes.NewBuffer(b)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = buf
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return nil, err
+	}
+	return strings.Split(string(buf.Bytes()), "\n"), nil
 }

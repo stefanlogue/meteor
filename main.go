@@ -196,17 +196,27 @@ func main() {
 			scopeInput,
 		)
 	}
-
+	coAuthors := config.Coauthors
+	if config.ReadContributorsFromGit {
+		additional, err := getComitters([]string{})
+		if err != nil {
+			fail(ErrorString, err)
+		} else {
+			for _, s := range additional {
+				coAuthors = append(coAuthors, huh.NewOption(s, s))
+			}
+		}
+	}
 	mainForm := huh.NewForm(
 		mainGroup,
 		huh.NewGroup(
 			huh.NewMultiSelect[string]().
 				Title("Coauthors").
 				Description("Select any coauthors for this commit").
-				Options(config.Coauthors...).
+				Options(coAuthors...).
 				Value(&newCommit.Coauthors),
 		).WithHideFunc(func() bool {
-			return len(config.Coauthors) < 1
+			return len(coAuthors) < 1
 		}),
 	).WithTheme(theme)
 

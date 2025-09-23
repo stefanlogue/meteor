@@ -67,7 +67,8 @@ The content should be in the following format:
   ],
   "commitTitleCharLimit": 60,
   "commitBodyCharLimit": 60,
-  "commitBodyLineLength": 40
+  "commitBodyLineLength": 40,
+  "readContributorsFromGit": true
 }
 ```
 
