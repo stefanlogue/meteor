@@ -206,10 +206,10 @@ func main() {
 			for _, s := range additional {
 				coAuthors = append(coAuthors, huh.NewOption(s, s))
 			}
-			if len(coAuthors) > 0 {
-				coAuthors = util.PrependItem(coAuthors, huh.NewOption("no coauthors", "none"))
-			}
 		}
+	}
+	if len(coAuthors) > 0 {
+		coAuthors = util.PrependItem(coAuthors, huh.NewOption("no coauthors", "none"))
 	}
 	mainForm := huh.NewForm(
 		mainGroup,
