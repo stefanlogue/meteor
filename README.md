@@ -65,6 +65,7 @@ The content should be in the following format:
     { "type":  "fix", "description":  "a bug fix"},
     { "type":  "bug", "description":  "introducing a bug"}
   ],
+  "pushAfterCommit": false,
   "commitTitleCharLimit": 60,
   "commitBodyCharLimit": 60,
   "commitBodyLineLength": 40,
