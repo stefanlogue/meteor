@@ -11,6 +11,7 @@ import (
 )
 
 type Config struct {
+	PushAfterCommit           *bool     `json:"pushAfterCommit"`
 	ShowIntro                 *bool     `json:"showIntro"`
 	CommitTitleCharLimit      *int      `json:"commitTitleCharLimit"`
 	CommitBodyCharLimit       *int      `json:"commitBodyCharLimit"`
