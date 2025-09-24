@@ -125,8 +125,7 @@ you can provide your own! The syntax can be seen in the defaults below:
 
 - `@type`: the conventional commit type i.e. `feat`, `chore` etc.
 - `@message`: the commit message
-- `(@scope)`: (optional but recommended) the scope of the commit, must be within
-parentheses
+- `(@scope)`: (optional but recommended) the scope of the commit must be within parentheses
 
 `messageWithTicketTemplate` also additionally takes `@ticket`
 
