@@ -21,6 +21,7 @@ const (
 )
 
 type LoadConfigReturn struct {
+	PushAfterCommit           bool
 	MessageTemplate           string
 	MessageWithTicketTemplate string
 	Prefixes                  []huh.Option[string]
@@ -40,6 +41,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	if err != nil {
 		log.Debug("Error finding config file", "error", err)
 		return LoadConfigReturn{
+			PushAfterCommit:           false,
 			MessageTemplate:           defaultMessageTemplate,
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
 			Prefixes:                  config.DefaultPrefixes,
@@ -58,6 +60,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	err = c.LoadFile(filePath)
 	if err != nil {
 		return LoadConfigReturn{
+			PushAfterCommit:           false,
 			MessageTemplate:           defaultMessageTemplate,
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
@@ -66,6 +69,11 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			ShowIntro:                 true,
 			ReadContributorsFromGit:   false,
 		}, fmt.Errorf("error parsing config file: %w", err)
+	}
+
+	if c.PushAfterCommit == nil {
+		pushAfterCommit := false
+		c.PushAfterCommit = &pushAfterCommit
 	}
 
 	if c.ShowIntro == nil {
@@ -114,6 +122,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	c.MessageWithTicketTemplate = &messageWithTicketTemplate
 
 	return LoadConfigReturn{
+		PushAfterCommit:           *c.PushAfterCommit,
 		MessageTemplate:           messageTemplate,
 		MessageWithTicketTemplate: messageWithTicketTemplate,
 		Prefixes:                  c.Prefixes.Options(),

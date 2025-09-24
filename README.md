@@ -65,6 +65,7 @@ The content should be in the following format:
     { "type":  "fix", "description":  "a bug fix"},
     { "type":  "bug", "description":  "introducing a bug"}
   ],
+  "pushAfterCommit": false,
   "commitTitleCharLimit": 60,
   "commitBodyCharLimit": 60,
   "commitBodyLineLength": 40,
@@ -124,8 +125,7 @@ you can provide your own! The syntax can be seen in the defaults below:
 
 - `@type`: the conventional commit type i.e. `feat`, `chore` etc.
 - `@message`: the commit message
-- `(@scope)`: (optional but recommended) the scope of the commit, must be within
-parentheses
+- `(@scope)`: (optional but recommended) the scope of the commit must be within parentheses
 
 `messageWithTicketTemplate` also additionally takes `@ticket`
 
