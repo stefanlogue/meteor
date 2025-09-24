@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/afero"
+
 	"github.com/stefanlogue/meteor/pkg/config"
 )
 
@@ -46,6 +47,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
+			ReadContributorsFromGit:   false,
 		}, nil
 	}
 
@@ -62,6 +64,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
+			ReadContributorsFromGit:   false,
 		}, fmt.Errorf("error parsing config file: %w", err)
 	}
 
@@ -83,6 +86,11 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	if c.CommitBodyLineLength == nil || *c.CommitBodyLineLength < minimumCommitBodyLineLength {
 		commitBodyLineLength := defaultCommitBodyLineLength
 		c.CommitBodyLineLength = &commitBodyLineLength
+	}
+
+	if c.ReadContributorsFromGit == nil {
+		read := false
+		c.ReadContributorsFromGit = &read
 	}
 
 	messageTemplate := defaultMessageTemplate
