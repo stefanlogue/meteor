@@ -45,6 +45,7 @@ var (
 	debugMode          bool
 	skipIntro          bool
 	skipBreakingChange bool
+	addAll             bool
 	FS                 afero.Fs     = afero.NewOsFs()
 	AFS                *afero.Afero = &afero.Afero{Fs: FS}
 )
@@ -61,6 +62,7 @@ func init() {
 	flag.BoolVarP(&skipIntro, "skip-intro", "s", false, "skip intro splash")
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
 	flag.BoolVarP(&skipBreakingChange, "skip-breaking-change", "b", false, "skip breaking change prompt")
+	flag.BoolVarP(&addAll, "add-all", "a", false, "add all files to commit")
 	flag.Parse()
 	if isFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
@@ -99,6 +101,10 @@ func main() {
 	config, err := loadConfig(AFS)
 	if err != nil {
 		fail(ErrorString, err)
+	}
+
+	if !config.AddAll && addAll {
+		config.AddAll = true
 	}
 
 	var newCommit Commit
@@ -304,6 +310,20 @@ func main() {
 		args = args[1:]
 	}
 
+	if config.AddAll {
+		rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
+		err = commit(rawCommitCommand)
+		if err != nil {
+			writeToClipboard(printableCommitCommand)
+			fail(
+				"\n%s\n%s\n\n%s\n\n",
+				color.RedString(fmt.Sprintf("It looks like the add all failed.\nError: %s", err)),
+				color.YellowString("To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):"),
+				color.BlueString(printableCommitCommand),
+			)
+			return
+		}
+	}
 	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
 
 	if isFlagPassed(AsGitEditor) {

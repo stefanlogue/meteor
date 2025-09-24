@@ -32,6 +32,7 @@ type LoadConfigReturn struct {
 	CommitBodyLineLength      int
 	ShowIntro                 bool
 	ReadContributorsFromGit   bool
+	AddAll                    bool
 }
 
 // loadConfig loads the config file from the current directory or any parent
@@ -66,6 +67,11 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			ShowIntro:                 true,
 			ReadContributorsFromGit:   false,
 		}, fmt.Errorf("error parsing config file: %w", err)
+	}
+
+	if c.AddAll == nil {
+		all := false
+		c.AddAll = &all
 	}
 
 	if c.ShowIntro == nil {
@@ -125,5 +131,6 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		CommitBodyLineLength:      *c.CommitBodyLineLength,
 		ShowIntro:                 *c.ShowIntro,
 		ReadContributorsFromGit:   *c.ReadContributorsFromGit,
+		AddAll:                    *c.AddAll,
 	}, nil
 }
