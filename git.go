@@ -89,6 +89,12 @@ func getComitters(osArgs []string) ([]string, error) {
 	return result, nil
 }
 
+// buildAddAllCommitCommand builds the git commit command to stage all files
+func buildAddAllCommitCommand(msg string, body string, osArgs []string) ([]string, string) {
+	args := append([]string{"add", "--all", ":/"}, osArgs...)
+	return args, fmt.Sprintf("git %v", shellescape.QuoteCommand(args))
+}
+
 // commit commits the changes to git
 func commit(command []string) error {
 	cmd := exec.Command("git", command...)
