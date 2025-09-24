@@ -49,6 +49,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
 			ReadContributorsFromGit:   false,
+			AddAll:                    false,
 		}, nil
 	}
 
@@ -66,6 +67,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
 			ReadContributorsFromGit:   false,
+			AddAll:                    false,
 		}, fmt.Errorf("error parsing config file: %w", err)
 	}
 
