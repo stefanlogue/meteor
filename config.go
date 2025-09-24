@@ -85,6 +85,11 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		c.CommitBodyLineLength = &commitBodyLineLength
 	}
 
+	if c.ReadContributorsFromGit == nil {
+		read := false
+		c.ReadContributorsFromGit = &read
+	}
+
 	messageTemplate := defaultMessageTemplate
 	if c.MessageTemplate != nil {
 		messageTemplate, err = config.ConvertTemplate(*c.MessageTemplate)
