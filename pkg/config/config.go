@@ -17,6 +17,7 @@ type Config struct {
 	CommitBodyLineLength      *int      `json:"commitBodyLineLength"`
 	MessageTemplate           *string   `json:"messageTemplate"`
 	MessageWithTicketTemplate *string   `json:"messageWithTicketTemplate"`
+	UseEmojis                 *bool     `json:"useEmojis"`
 	Prefixes                  Prefixes  `json:"prefixes"`
 	Coauthors                 CoAuthors `json:"coauthors"`
 	Boards                    Boards    `json:"boards"`

@@ -7,8 +7,9 @@ import (
 )
 
 type Prefix struct {
-	T string `json:"type"`
-	D string `json:"description"`
+	T string  `json:"type"`
+	D string  `json:"description"`
+	E *string `json:"emoji,omitempty"`
 }
 
 type Prefixes []Prefix
@@ -28,6 +29,10 @@ var DefaultPrefixes = []huh.Option[string]{
 }
 
 func (p *Prefixes) Options() []huh.Option[string] {
+	return p.OptionsWithEmojis(false)
+}
+
+func (p *Prefixes) OptionsWithEmojis(useEmojis bool) []huh.Option[string] {
 	prefixes := []Prefix(*p)
 
 	if len(prefixes) == 0 {
@@ -35,8 +40,12 @@ func (p *Prefixes) Options() []huh.Option[string] {
 	}
 	var items []huh.Option[string]
 	for _, prefix := range prefixes {
-		desc := fmt.Sprintf("%s - %s", prefix.T, prefix.D)
-		items = append(items, huh.NewOption(desc, prefix.T))
+		typeWithEmoji := prefix.T
+		if useEmojis && prefix.E != nil && *prefix.E != "" {
+			typeWithEmoji = fmt.Sprintf("%s %s", prefix.T, *prefix.E)
+		}
+		desc := fmt.Sprintf("%s - %s", typeWithEmoji, prefix.D)
+		items = append(items, huh.NewOption(desc, typeWithEmoji))
 	}
 	return items
 }
