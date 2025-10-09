@@ -30,6 +30,11 @@ var defaultPrefixData = Prefixes{
 	{T: "test", D: "adding missing tests or correcting existing tests"},
 }
 
+const (
+	defaultEmojiWidth = 2
+	emojiPadding      = 1
+)
+
 // GetDefaultPrefixOptions returns the default prefix options without emoji formatting
 // for use when no custom prefixes are defined.
 func GetDefaultPrefixOptions() []huh.Option[string] {
@@ -43,78 +48,106 @@ func (p *Prefixes) Options() []huh.Option[string] {
 // OptionsWithEmojis formats the prefixes into huh.Option slices, optionally including emojis.
 // It dynamically sizes the columns based on the content for better alignment.
 func (p *Prefixes) OptionsWithEmojis(useEmojis bool) []huh.Option[string] {
-	prefixes := []Prefix(*p)
-	if len(prefixes) == 0 {
-		return GetDefaultPrefixOptions()
+	if len(*p) == 0 {
+		return defaultPrefixData.OptionsWithEmojis(useEmojis)
 	}
 
-	// Measure with grapheme-aware width
-	maxTypeWidth := 0
-	maxDescWidth := 0
-	for _, pr := range prefixes {
-		if w := runewidth.StringWidth(pr.T); w > maxTypeWidth {
-			maxTypeWidth = w
-		}
-		if w := runewidth.StringWidth(pr.D); w > maxDescWidth {
-			maxDescWidth = w
-		}
-	}
+	// Single pass to measure all column widths
+	measurements := measureColumnWidths(*p, useEmojis)
 
-	// Dynamically size the emoji column from data (then add 1 pad).
-	maxEmojiWidth := 0
-	if useEmojis {
-		for _, pr := range prefixes {
-			if pr.E != nil && *pr.E != "" {
-				if w := runewidth.StringWidth(*pr.E); w > maxEmojiWidth {
-					maxEmojiWidth = w
-				}
+	// Create styles once
+	styles := createColumnStyles(measurements)
+
+	// Build options
+	items := make([]huh.Option[string], 0, len(*p))
+	for _, prefix := range *p {
+		option := buildPrefixOption(prefix, useEmojis, styles)
+		items = append(items, option)
+	}
+	return items
+}
+
+// columnMeasurements holds the measured widths for each column
+type columnMeasurements struct {
+	maxTypeWidth  int
+	maxDescWidth  int
+	maxEmojiWidth int
+}
+
+// columnStyles holds the lipgloss styles for each column
+type columnStyles struct {
+	typeStyle        lipgloss.Style
+	emojiStyle       lipgloss.Style
+	separatorStyle   lipgloss.Style
+	descriptionStyle lipgloss.Style
+}
+
+// measureColumnWidths calculates the maximum width needed for each column in a single pass
+func measureColumnWidths(prefixes []Prefix, useEmojis bool) columnMeasurements {
+	var measurements columnMeasurements
+
+	for _, prefix := range prefixes {
+		if w := runewidth.StringWidth(prefix.T); w > measurements.maxTypeWidth {
+			measurements.maxTypeWidth = w
+		}
+		if w := runewidth.StringWidth(prefix.D); w > measurements.maxDescWidth {
+			measurements.maxDescWidth = w
+		}
+
+		if useEmojis && prefix.E != nil && *prefix.E != "" {
+			if w := runewidth.StringWidth(*prefix.E); w > measurements.maxEmojiWidth {
+				measurements.maxEmojiWidth = w
 			}
 		}
 	}
 
-	if maxEmojiWidth == 0 {
-		maxEmojiWidth = 2 // sane default
+	// Set default emoji width if none found
+	if measurements.maxEmojiWidth == 0 {
+		measurements.maxEmojiWidth = defaultEmojiWidth
 	}
-	emojiColWidth := maxEmojiWidth + 1 // padding
 
-	typeStyle := lipgloss.NewStyle().Width(maxTypeWidth).Align(lipgloss.Left)
-	emojiStyle := lipgloss.NewStyle().Width(emojiColWidth).Align(lipgloss.Left)
-	separatorStyle := lipgloss.NewStyle()
-	descriptionStyle := lipgloss.NewStyle().PaddingRight(1).Align(lipgloss.Left)
+	return measurements
+}
 
-	var items []huh.Option[string]
-	for _, prefix := range prefixes {
-		typeWithEmoji := prefix.T
+// createColumnStyles creates the lipgloss styles based on measurements
+func createColumnStyles(measurements columnMeasurements) columnStyles {
+	emojiColWidth := measurements.maxEmojiWidth + emojiPadding
 
-		var desc string
-		if useEmojis && prefix.E != nil && *prefix.E != "" {
-			typeWithEmoji = fmt.Sprintf("%s %s", prefix.T, *prefix.E)
-
-			typeColumn := typeStyle.Render(prefix.T)
-			emojiColumn := emojiStyle.Render(*prefix.E)
-			separatorColumn := separatorStyle.Render(" - ")
-			descriptionColumn := descriptionStyle.Render(prefix.D)
-
-			desc = lipgloss.JoinHorizontal(
-				lipgloss.Center,
-				typeColumn,
-				separatorColumn,
-				descriptionColumn,
-				emojiColumn,
-			)
-		} else {
-			typeColumn := typeStyle.Render(prefix.T)
-			separatorColumn := separatorStyle.Render(" - ")
-			descriptionColumn := descriptionStyle.Render(prefix.D)
-
-			desc = lipgloss.JoinHorizontal(
-				lipgloss.Center,
-				typeColumn,
-				separatorColumn,
-				descriptionColumn,
-			)
-		}
-		items = append(items, huh.NewOption(desc, typeWithEmoji))
+	return columnStyles{
+		typeStyle:        lipgloss.NewStyle().Width(measurements.maxTypeWidth).Align(lipgloss.Left),
+		emojiStyle:       lipgloss.NewStyle().Width(emojiColWidth).Align(lipgloss.Left),
+		separatorStyle:   lipgloss.NewStyle(),
+		descriptionStyle: lipgloss.NewStyle().PaddingRight(1).Align(lipgloss.Left),
 	}
-	return items
+}
+
+// buildPrefixOption creates a single huh.Option for a prefix
+func buildPrefixOption(prefix Prefix, useEmojis bool, styles columnStyles) huh.Option[string] {
+	typeWithEmoji := prefix.T
+	hasEmoji := useEmojis && prefix.E != nil && *prefix.E != ""
+
+	if hasEmoji {
+		typeWithEmoji = fmt.Sprintf("%s %s", prefix.T, *prefix.E)
+	}
+
+	// Build the display string
+	var desc string
+	if hasEmoji {
+		desc = lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			styles.typeStyle.Render(prefix.T),
+			styles.separatorStyle.Render(" - "),
+			styles.descriptionStyle.Render(prefix.D),
+			styles.emojiStyle.Render(*prefix.E),
+		)
+	} else {
+		desc = lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			styles.typeStyle.Render(prefix.T),
+			styles.separatorStyle.Render(" - "),
+			styles.descriptionStyle.Render(prefix.D),
+		)
+	}
+
+	return huh.NewOption(desc, typeWithEmoji)
 }
