@@ -15,7 +15,19 @@ func TestPrefixes_Options(t *testing.T) {
 		{
 			name:     "empty prefixes returns default",
 			prefixes: Prefixes{},
-			want:     DefaultPrefixes,
+			want: []huh.Option[string]{
+				huh.NewOption("feat     - a new feature ", "feat"),
+				huh.NewOption("fix      - a bug fix ", "fix"),
+				huh.NewOption("build    - changes that affect the build system or external dependencies ", "build"),
+				huh.NewOption("chore    - changes to the build process or auxiliary tools and libraries ", "chore"),
+				huh.NewOption("ci       - changes to our CI configuration files and scripts ", "ci"),
+				huh.NewOption("docs     - documentation only changes ", "docs"),
+				huh.NewOption("perf     - a code change that improves performance ", "perf"),
+				huh.NewOption("refactor - a code change that neither fixes a bug nor adds a feature ", "refactor"),
+				huh.NewOption("revert   - reverts a previous commit ", "revert"),
+				huh.NewOption("style    - changes that do not affect the meaning of the code ", "style"),
+				huh.NewOption("test     - adding missing tests or correcting existing tests ", "test"),
+			},
 		},
 		{
 			name: "prefixes without emojis",
@@ -24,8 +36,8 @@ func TestPrefixes_Options(t *testing.T) {
 				{T: "fix", D: "a bug fix"},
 			},
 			want: []huh.Option[string]{
-				huh.NewOption("feat - a new feature", "feat"),
-				huh.NewOption("fix - a bug fix", "fix"),
+				huh.NewOption("feat - a new feature ", "feat"),
+				huh.NewOption("fix  - a bug fix ", "fix"),
 			},
 		},
 	}
@@ -57,10 +69,40 @@ func TestPrefixes_OptionsWithEmojis(t *testing.T) {
 		want      []huh.Option[string]
 	}{
 		{
-			name:      "empty prefixes returns default",
+			name:      "empty prefixes returns default with useEmojis false",
+			prefixes:  Prefixes{},
+			useEmojis: false,
+			want: []huh.Option[string]{
+				huh.NewOption("feat     - a new feature ", "feat"),
+				huh.NewOption("fix      - a bug fix ", "fix"),
+				huh.NewOption("build    - changes that affect the build system or external dependencies ", "build"),
+				huh.NewOption("chore    - changes to the build process or auxiliary tools and libraries ", "chore"),
+				huh.NewOption("ci       - changes to our CI configuration files and scripts ", "ci"),
+				huh.NewOption("docs     - documentation only changes ", "docs"),
+				huh.NewOption("perf     - a code change that improves performance ", "perf"),
+				huh.NewOption("refactor - a code change that neither fixes a bug nor adds a feature ", "refactor"),
+				huh.NewOption("revert   - reverts a previous commit ", "revert"),
+				huh.NewOption("style    - changes that do not affect the meaning of the code ", "style"),
+				huh.NewOption("test     - adding missing tests or correcting existing tests ", "test"),
+			},
+		},
+		{
+			name:      "empty prefixes with useEmojis true returns formatted defaults",
 			prefixes:  Prefixes{},
 			useEmojis: true,
-			want:      DefaultPrefixes,
+			want: []huh.Option[string]{
+				huh.NewOption("feat     - a new feature ", "feat"),
+				huh.NewOption("fix      - a bug fix ", "fix"),
+				huh.NewOption("build    - changes that affect the build system or external dependencies ", "build"),
+				huh.NewOption("chore    - changes to the build process or auxiliary tools and libraries ", "chore"),
+				huh.NewOption("ci       - changes to our CI configuration files and scripts ", "ci"),
+				huh.NewOption("docs     - documentation only changes ", "docs"),
+				huh.NewOption("perf     - a code change that improves performance ", "perf"),
+				huh.NewOption("refactor - a code change that neither fixes a bug nor adds a feature ", "refactor"),
+				huh.NewOption("revert   - reverts a previous commit ", "revert"),
+				huh.NewOption("style    - changes that do not affect the meaning of the code ", "style"),
+				huh.NewOption("test     - adding missing tests or correcting existing tests ", "test"),
+			},
 		},
 		{
 			name: "prefixes with emojis enabled",
@@ -70,8 +112,8 @@ func TestPrefixes_OptionsWithEmojis(t *testing.T) {
 			},
 			useEmojis: true,
 			want: []huh.Option[string]{
-				huh.NewOption("feat ✨ - a new feature", "feat ✨"),
-				huh.NewOption("fix 🐛 - a bug fix", "fix 🐛"),
+				huh.NewOption("feat - a new feature ✨ ", "feat ✨"),
+				huh.NewOption("fix  - a bug fix 🐛 ", "fix 🐛"),
 			},
 		},
 		{
@@ -82,8 +124,8 @@ func TestPrefixes_OptionsWithEmojis(t *testing.T) {
 			},
 			useEmojis: false,
 			want: []huh.Option[string]{
-				huh.NewOption("feat - a new feature", "feat"),
-				huh.NewOption("fix - a bug fix", "fix"),
+				huh.NewOption("feat - a new feature ", "feat"),
+				huh.NewOption("fix  - a bug fix ", "fix"),
 			},
 		},
 		{
@@ -94,8 +136,8 @@ func TestPrefixes_OptionsWithEmojis(t *testing.T) {
 			},
 			useEmojis: true,
 			want: []huh.Option[string]{
-				huh.NewOption("feat - a new feature", "feat"),
-				huh.NewOption("fix - a bug fix", "fix"),
+				huh.NewOption("feat - a new feature ", "feat"),
+				huh.NewOption("fix  - a bug fix ", "fix"),
 			},
 		},
 		{
@@ -106,8 +148,8 @@ func TestPrefixes_OptionsWithEmojis(t *testing.T) {
 			},
 			useEmojis: true,
 			want: []huh.Option[string]{
-				huh.NewOption("feat - a new feature", "feat"),
-				huh.NewOption("fix - a bug fix", "fix"),
+				huh.NewOption("feat - a new feature ", "feat"),
+				huh.NewOption("fix  - a bug fix ", "fix"),
 			},
 		},
 		{
@@ -119,9 +161,9 @@ func TestPrefixes_OptionsWithEmojis(t *testing.T) {
 			},
 			useEmojis: true,
 			want: []huh.Option[string]{
-				huh.NewOption("feat ✨ - a new feature", "feat ✨"),
-				huh.NewOption("fix - a bug fix", "fix"),
-				huh.NewOption("docs 📚 - documentation", "docs 📚"),
+				huh.NewOption("feat - a new feature ✨ ", "feat ✨"),
+				huh.NewOption("fix  - a bug fix ", "fix"),
+				huh.NewOption("docs - documentation 📚 ", "docs 📚"),
 			},
 		},
 	}
@@ -141,4 +183,75 @@ func TestPrefixes_OptionsWithEmojis(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetDefaultPrefixOptions(t *testing.T) {
+	expected := []huh.Option[string]{
+		huh.NewOption("feat     - a new feature ", "feat"),
+		huh.NewOption("fix      - a bug fix ", "fix"),
+		huh.NewOption("build    - changes that affect the build system or external dependencies ", "build"),
+		huh.NewOption("chore    - changes to the build process or auxiliary tools and libraries ", "chore"),
+		huh.NewOption("ci       - changes to our CI configuration files and scripts ", "ci"),
+		huh.NewOption("docs     - documentation only changes ", "docs"),
+		huh.NewOption("perf     - a code change that improves performance ", "perf"),
+		huh.NewOption("refactor - a code change that neither fixes a bug nor adds a feature ", "refactor"),
+		huh.NewOption("revert   - reverts a previous commit ", "revert"),
+		huh.NewOption("style    - changes that do not affect the meaning of the code ", "style"),
+		huh.NewOption("test     - adding missing tests or correcting existing tests ", "test"),
+	}
+
+	got := GetDefaultPrefixOptions()
+	if len(got) != len(expected) {
+		t.Errorf("GetDefaultPrefixOptions() returned %d items, want %d", len(got), len(expected))
+		return
+	}
+	for i, option := range got {
+		if option.Key != expected[i].Key || option.Value != expected[i].Value {
+			t.Errorf("GetDefaultPrefixOptions()[%d] = {Key: %q, Value: %q}, want {Key: %q, Value: %q}",
+				i, option.Key, option.Value, expected[i].Key, expected[i].Value)
+		}
+	}
+}
+
+func TestGetDefaultPrefixOptionsWithEmojis(t *testing.T) {
+	tests := []struct {
+		name      string
+		useEmojis bool
+	}{
+		{
+			name:      "with emojis disabled returns simple format",
+			useEmojis: false,
+		},
+		{
+			name:      "with emojis enabled returns formatted with spacing",
+			useEmojis: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := defaultPrefixData.OptionsWithEmojis(tt.useEmojis)
+			if len(got) != 11 { // We expect 11 default prefixes
+				t.Errorf("GetDefaultPrefixOptionsWithEmojis() returned %d items, want 11", len(got))
+				return
+			}
+
+			// Check that all items have the expected value (type without emoji)
+			expectedTypes := []string{"feat", "fix", "build", "chore", "ci", "docs", "perf", "refactor", "revert", "style", "test"}
+			for i, option := range got {
+				if option.Value != expectedTypes[i] {
+					t.Errorf("GetDefaultPrefixOptionsWithEmojis()[%d].Value = %q, want %q", i, option.Value, expectedTypes[i])
+				}
+
+				// Check that Key contains the type and description
+				if !contains(option.Key, expectedTypes[i]) {
+					t.Errorf("GetDefaultPrefixOptionsWithEmojis()[%d].Key = %q should contain %q", i, option.Key, expectedTypes[i])
+				}
+			}
+		})
+	}
+}
+
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && s[:len(substr)] == substr
 }

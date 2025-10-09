@@ -43,7 +43,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		return LoadConfigReturn{
 			MessageTemplate:           defaultMessageTemplate,
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
-			Prefixes:                  config.DefaultPrefixes,
+			Prefixes:                  config.GetDefaultPrefixOptions(),
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
 			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
