@@ -11,6 +11,7 @@ import (
 )
 
 type Config struct {
+	AddAll                    *bool     `json:"addAll"`
 	ShowIntro                 *bool     `json:"showIntro"`
 	CommitTitleCharLimit      *int      `json:"commitTitleCharLimit"`
 	CommitBodyCharLimit       *int      `json:"commitBodyCharLimit"`
