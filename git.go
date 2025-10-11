@@ -90,8 +90,8 @@ func getComitters(osArgs []string) ([]string, error) {
 }
 
 // buildAddAllCommitCommand builds the git commit command to stage all files
-func buildAddAllCommitCommand(msg string, body string, osArgs []string) ([]string, string) {
-	args := append([]string{"add", "--all", ":/"}, osArgs...)
+func buildAddAllCommitCommand() ([]string, string) {
+	args := append([]string{"add", "--all", ":/"})
 	return args, fmt.Sprintf("git %v", shellescape.QuoteCommand(args))
 }
 

@@ -73,6 +73,35 @@ The content should be in the following format:
 }
 ```
 
+### Co-authors
+
+If you want to add co-authors to your commits, add the following to your
+config:
+
+```json
+{
+  "coauthors": [
+    { "name": "John Doe", "email": "john.doe@email.com" },
+    { "name": "Jane Doe", "email": "jane.doe@email.com" }
+  ]
+}
+```
+
+You can choose from those while constructing your commit message. If you add `readContributorsFromGit` to your config, 
+Meteor will read the contributors from your repository history.
+
+### addAll
+
+If you want to add all unstaged changes to your commit, add the following to your config:
+
+```json
+{
+  "addAll": true
+}
+```
+
+This basically runs `git add --all :/` before committing.
+
 ### Boards
 
 ![Demo with boards](demos/demo-with-boards.gif)

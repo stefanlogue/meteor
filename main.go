@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
+
 	"github.com/stefanlogue/meteor/internal/util"
 
 	"github.com/atotto/clipboard"
@@ -62,7 +63,7 @@ func init() {
 	flag.BoolVarP(&skipIntro, "skip-intro", "s", false, "skip intro splash")
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
 	flag.BoolVarP(&skipBreakingChange, "skip-breaking-change", "b", false, "skip breaking change prompt")
-	flag.BoolVarP(&addAll, "add-all", "a", false, "add all files to commit")
+	flag.BoolVarP(&addAll, "add-all", "a", false, "add all unstaged changes to commit")
 	flag.Parse()
 	if isFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
@@ -311,7 +312,7 @@ func main() {
 	}
 
 	if config.AddAll {
-		rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
+		rawCommitCommand, printableCommitCommand := buildAddAllCommitCommand()
 		err = commit(rawCommitCommand)
 		if err != nil {
 			writeToClipboard(printableCommitCommand)
