@@ -23,8 +23,6 @@ archives:
 homebrew_casks:
   - name: meteor
     homepage: https://github.com/stefanlogue/homebrew-tools
-    conflicts:
-      - formula: meteor
     repository:
       owner: stefanlogue
       name: homebrew-tools
