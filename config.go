@@ -32,6 +32,7 @@ type LoadConfigReturn struct {
 	CommitBodyLineLength      int
 	ShowIntro                 bool
 	ReadContributorsFromGit   bool
+	UseEmojis                 bool
 }
 
 // loadConfig loads the config file from the current directory or any parent
@@ -42,12 +43,13 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		return LoadConfigReturn{
 			MessageTemplate:           defaultMessageTemplate,
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
-			Prefixes:                  config.DefaultPrefixes,
+			Prefixes:                  config.GetDefaultPrefixOptions(),
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
 			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
 			ReadContributorsFromGit:   false,
+			UseEmojis:                 false,
 		}, nil
 	}
 
@@ -65,6 +67,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
 			ReadContributorsFromGit:   false,
+			UseEmojis:                 false,
 		}, fmt.Errorf("error parsing config file: %w", err)
 	}
 
@@ -93,6 +96,11 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		c.ReadContributorsFromGit = &read
 	}
 
+	if c.UseEmojis == nil {
+		useEmojis := false
+		c.UseEmojis = &useEmojis
+	}
+
 	messageTemplate := defaultMessageTemplate
 	if c.MessageTemplate != nil {
 		messageTemplate, err = config.ConvertTemplate(*c.MessageTemplate)
@@ -113,10 +121,17 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	}
 	c.MessageWithTicketTemplate = &messageWithTicketTemplate
 
+	var prefixes []huh.Option[string]
+	if *c.UseEmojis {
+		prefixes = c.Prefixes.OptionsWithEmojis(true)
+	} else {
+		prefixes = c.Prefixes.Options()
+	}
+
 	return LoadConfigReturn{
 		MessageTemplate:           messageTemplate,
 		MessageWithTicketTemplate: messageWithTicketTemplate,
-		Prefixes:                  c.Prefixes.Options(),
+		Prefixes:                  prefixes,
 		Coauthors:                 c.Coauthors.Options(),
 		Boards:                    c.Boards.Options(),
 		Scopes:                    c.Scopes.Options(),
@@ -125,5 +140,6 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		CommitBodyLineLength:      *c.CommitBodyLineLength,
 		ShowIntro:                 *c.ShowIntro,
 		ReadContributorsFromGit:   *c.ReadContributorsFromGit,
+		UseEmojis:                 *c.UseEmojis,
 	}, nil
 }

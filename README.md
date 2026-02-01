@@ -61,16 +61,36 @@ The content should be in the following format:
     { "name": "John Doe", "email": "john.doe@email.com" }
   ],
   "prefixes": [
-    { "type":  "feat", "description":  "a new feature"},
-    { "type":  "fix", "description":  "a bug fix"},
-    { "type":  "bug", "description":  "introducing a bug"}
+    { "type":  "feat", "description":  "a new feature", "emoji": "✨"},
+    { "type":  "fix", "description":  "a bug fix", "emoji": "🐛"},
+    { "type":  "bug", "description":  "introducing a bug", "emoji": "🐞"}
   ],
+  "useEmojis": true,
   "commitTitleCharLimit": 60,
   "commitBodyCharLimit": 60,
   "commitBodyLineLength": 40,
   "readContributorsFromGit": true
 }
 ```
+
+### Emojis
+
+You can add emojis to your commit types by including an `emoji` field in your prefix configuration and setting `useEmojis` to `true`:
+
+```json
+{
+  "useEmojis": true,
+  "prefixes": [
+    { "type": "feat", "description": "a new feature", "emoji": "✨" },
+    { "type": "fix", "description": "a bug fix", "emoji": "🐛" },
+    { "type": "docs", "description": "documentation changes", "emoji": "📚" }
+  ]
+}
+```
+
+When `useEmojis` is `true`, the commit type options will display as "feat ✨ - a new feature" and the selected type will include the emoji (e.g., "feat ✨").
+
+When `useEmojis` is `false` (default), only the type name is used, regardless of whether emojis are defined in the configuration. This ensures backward compatibility with existing configurations.
 
 ### Boards
 
