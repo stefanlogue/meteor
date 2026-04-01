@@ -22,6 +22,8 @@ type Config struct {
 	Boards                    Boards    `json:"boards"`
 	Scopes                    Scopes    `json:"scopes"`
 	ReadContributorsFromGit   *bool     `json:"readContributorsFromGit"`
+	AllowCustomPrefixes       *bool     `json:"allowCustomPrefixes"`
+	AllowCustomScopes         *bool     `json:"allowCustomScopes"`
 }
 
 // New returns a new Config

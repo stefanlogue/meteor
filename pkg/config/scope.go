@@ -22,3 +22,16 @@ func (s *Scopes) Options() []huh.Option[string] {
 	items[0] = huh.NewOption("none", "")
 	return items
 }
+
+func (s *Scopes) Strings() []string {
+	scopes := []Scope(*s)
+
+	if len(scopes) == 0 {
+		return nil
+	}
+	var items []string
+	for _, scope := range scopes {
+		items = append(items, scope.Name)
+	}
+	return items
+}

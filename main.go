@@ -159,15 +159,34 @@ func main() {
 		}
 	}
 
-	typeInput := huh.NewSelect[string]().
-		Title("Type").
-		Description("Select the type of change that you're committing").
-		Options(config.Prefixes...).
-		Value(&newCommit.Type)
+	var typeInput huh.Field
+	if config.AllowCustomPrefixes {
+		typeInput = huh.NewInput().
+			Title("Type").
+			Description("Select the type of change that you're committing").
+			CharLimit(16).
+			Suggestions(config.Prefixes).
+			Value(&newCommit.Type)
+	} else {
+		typeInput = huh.NewSelect[string]().
+			Title("Type").
+			Description("Select the type of change that you're committing").
+			Options(config.SelectablePrefixes...).
+			Value(&newCommit.Type)
+	}
 
-	// if the user has specified scopes in their config, use a select input, otherwise use a text input
+	// if the user has specified scopes in their config and allowCustomScopes is true, use a text input with suggestions
+	// if the user has specified scopes in their config and allowCustomScopes is false, use a select input
+	// otherwise use a text input
 	var scopeInput huh.Field
-	if len(config.Scopes) > 0 {
+	if config.AllowCustomScopes && len(config.ScopeStrings) > 0 {
+		scopeInput = huh.NewInput().
+			Title("Scope").
+			Description("Specify a scope of the changes").
+			CharLimit(16).
+			Suggestions(config.ScopeStrings).
+			Value(&newCommit.Scope)
+	} else if len(config.Scopes) > 0 {
 		scopeInput = huh.NewSelect[string]().
 			Title("Scope").
 			Description("Choose a scope for the changes").

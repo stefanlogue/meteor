@@ -13,7 +13,21 @@ type Prefix struct {
 
 type Prefixes []Prefix
 
-var DefaultPrefixes = []huh.Option[string]{
+var DefaultPrefixes = []string{
+	"feat",
+	"fix",
+	"build",
+	"chore",
+	"ci",
+	"docs",
+	"perf",
+	"refactor",
+	"revert",
+	"style",
+	"test",
+}
+
+var DefaultSelectablePrefixes = []huh.Option[string]{
 	huh.NewOption("feat - a new feature", "feat"),
 	huh.NewOption("fix - a bug fix", "fix"),
 	huh.NewOption("build - changes that affect the build system or external dependencies", "build"),
@@ -31,12 +45,25 @@ func (p *Prefixes) Options() []huh.Option[string] {
 	prefixes := []Prefix(*p)
 
 	if len(prefixes) == 0 {
-		return DefaultPrefixes
+		return DefaultSelectablePrefixes
 	}
 	var items []huh.Option[string]
 	for _, prefix := range prefixes {
 		desc := fmt.Sprintf("%s - %s", prefix.T, prefix.D)
 		items = append(items, huh.NewOption(desc, prefix.T))
+	}
+	return items
+}
+
+func (p *Prefixes) Strings() []string {
+	prefixes := []Prefix(*p)
+
+	if len(prefixes) == 0 {
+		return DefaultPrefixes
+	}
+	var items []string
+	for _, prefix := range prefixes {
+		items = append(items, prefix.T)
 	}
 	return items
 }
