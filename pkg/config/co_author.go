@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/huh"
 )
@@ -26,4 +27,22 @@ func (p *CoAuthors) Options() []huh.Option[string] {
 		items = append(items, huh.NewOption(desc, desc))
 	}
 	return items
+}
+
+// BuildCoauthorString takes a slice of selected coauthors and returns a formatted
+// string which Github recognises
+func BuildCoAuthorString(coauthors []string) string {
+	var s strings.Builder
+	s.WriteString(`
+
+
+	`)
+
+	for _, coauthor := range coauthors {
+		if coauthor == "none" {
+			return ""
+		}
+		fmt.Fprintf(&s, "\nCo-authored-by: %s", coauthor)
+	}
+	return s.String()
 }

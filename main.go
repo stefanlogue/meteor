@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
 	"github.com/stefanlogue/meteor/internal/util"
+	cfg "github.com/stefanlogue/meteor/pkg/config"
 
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/key"
@@ -27,17 +28,6 @@ type Commit struct {
 	Body             string
 	Coauthors        []string
 	IsBreakingChange bool
-}
-
-// isFlagPassed checks if a flag has been passed
-func isFlagPassed(name string) bool {
-	found := false
-	flag.Visit(func(f *flag.Flag) {
-		if f.Name == name {
-			found = true
-		}
-	})
-	return found
 }
 
 var (
@@ -62,7 +52,7 @@ func init() {
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
 	flag.BoolVarP(&skipBreakingChange, "skip-breaking-change", "b", false, "skip breaking change prompt")
 	flag.Parse()
-	if isFlagPassed("version") {
+	if util.IsFlagPassed("version") {
 		fmt.Printf("meteor version %s\n", version)
 		os.Exit(0)
 	}
@@ -103,7 +93,7 @@ func main() {
 
 	var newCommit Commit
 	theme := huh.ThemeCatppuccin()
-	if config.ShowIntro && (isFlagPassed("skip-intro") && !skipIntro) {
+	if config.ShowIntro && (util.IsFlagPassed("skip-intro") && !skipIntro) {
 		introForm := huh.NewForm(
 			huh.NewGroup(
 				splashScreen(),
@@ -159,15 +149,34 @@ func main() {
 		}
 	}
 
-	typeInput := huh.NewSelect[string]().
-		Title("Type").
-		Description("Select the type of change that you're committing").
-		Options(config.Prefixes...).
-		Value(&newCommit.Type)
+	var typeInput huh.Field
+	if config.AllowCustomPrefixes {
+		typeInput = huh.NewInput().
+			Title("Type").
+			Description("Select the type of change that you're committing").
+			CharLimit(16).
+			Suggestions(config.Prefixes).
+			Value(&newCommit.Type)
+	} else {
+		typeInput = huh.NewSelect[string]().
+			Title("Type").
+			Description("Select the type of change that you're committing").
+			Options(config.SelectablePrefixes...).
+			Value(&newCommit.Type)
+	}
 
-	// if the user has specified scopes in their config, use a select input, otherwise use a text input
+	// if the user has specified scopes in their config and allowCustomScopes is true, use a text input with suggestions
+	// if the user has specified scopes in their config and allowCustomScopes is false, use a select input
+	// otherwise use a text input
 	var scopeInput huh.Field
-	if len(config.Scopes) > 0 {
+	if config.AllowCustomScopes && len(config.ScopeStrings) > 0 {
+		scopeInput = huh.NewInput().
+			Title("Scope").
+			Description("Specify a scope of the changes").
+			CharLimit(16).
+			Suggestions(config.ScopeStrings).
+			Value(&newCommit.Scope)
+	} else if len(config.Scopes) > 0 {
 		scopeInput = huh.NewSelect[string]().
 			Title("Scope").
 			Description("Choose a scope for the changes").
@@ -290,7 +299,7 @@ func main() {
 	}
 
 	if len(newCommit.Coauthors) > 0 {
-		newCommit.Body = newCommit.Body + buildCoauthorString(newCommit.Coauthors)
+		newCommit.Body = newCommit.Body + cfg.BuildCoAuthorString(newCommit.Coauthors)
 	}
 
 	args := flag.Args()
@@ -299,14 +308,14 @@ func main() {
 
 	// If we're operating in GIT_EDITOR="meteor --as-git-editor" mode, the first argument is the path (.git/COMMIT_EDITMSG)
 	// where we should write the git commit message, so we shift that from args before constructing the end-user command line
-	if isFlagPassed(AsGitEditor) {
+	if util.IsFlagPassed(AsGitEditor) {
 		commitFile = args[0]
 		args = args[1:]
 	}
 
 	rawCommitCommand, printableCommitCommand := buildCommitCommand(newCommit.Message, newCommit.Body, args)
 
-	if isFlagPassed(AsGitEditor) {
+	if util.IsFlagPassed(AsGitEditor) {
 		// We intent to do the commit
 		if doesWantToCommit {
 			// Write the commit message file (.git/COMMIT_EDITMSG) in same format as git would have,
@@ -370,23 +379,6 @@ func writeToClipboard(s string) {
 	if err := clipboard.WriteAll(s); err != nil {
 		fail("Failed to copy to clipboard: %s", err)
 	}
-}
-
-// buildCoauthorString takes a slice of selected coauthors and returns a formatted
-// string which Github recognises
-func buildCoauthorString(coauthors []string) string {
-	s := `
-
-
-	`
-
-	for _, coauthor := range coauthors {
-		if coauthor == "none" {
-			return ""
-		}
-		s += fmt.Sprintf("\nCo-authored-by: %s", coauthor)
-	}
-	return s
 }
 
 // splashScreen returns a note with a splash screen

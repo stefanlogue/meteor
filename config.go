@@ -23,15 +23,19 @@ const (
 type LoadConfigReturn struct {
 	MessageTemplate           string
 	MessageWithTicketTemplate string
-	Prefixes                  []huh.Option[string]
+	SelectablePrefixes        []huh.Option[string]
+	Prefixes                  []string
 	Coauthors                 []huh.Option[string]
 	Boards                    []huh.Option[string]
 	Scopes                    []huh.Option[string]
+	ScopeStrings              []string
 	CommitTitleCharLimit      int
 	CommitBodyCharLimit       int
 	CommitBodyLineLength      int
 	ShowIntro                 bool
 	ReadContributorsFromGit   bool
+	AllowCustomPrefixes       bool
+	AllowCustomScopes         bool
 }
 
 // loadConfig loads the config file from the current directory or any parent
@@ -42,12 +46,14 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		return LoadConfigReturn{
 			MessageTemplate:           defaultMessageTemplate,
 			MessageWithTicketTemplate: defaultMessageWithTicketTemplate,
+			SelectablePrefixes:        config.DefaultSelectablePrefixes,
 			Prefixes:                  config.DefaultPrefixes,
 			CommitTitleCharLimit:      defaultCommitTitleCharLimit,
 			CommitBodyCharLimit:       defaultCommitBodyCharLimit,
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
 			ReadContributorsFromGit:   false,
+			AllowCustomPrefixes:       false,
 		}, nil
 	}
 
@@ -65,6 +71,7 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 			CommitBodyLineLength:      defaultCommitBodyLineLength,
 			ShowIntro:                 true,
 			ReadContributorsFromGit:   false,
+			AllowCustomPrefixes:       false,
 		}, fmt.Errorf("error parsing config file: %w", err)
 	}
 
@@ -93,6 +100,16 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 		c.ReadContributorsFromGit = &read
 	}
 
+	if c.AllowCustomPrefixes == nil {
+		allowCustomPrefixes := false
+		c.AllowCustomPrefixes = &allowCustomPrefixes
+	}
+
+	if c.AllowCustomScopes == nil {
+		allowCustomScopes := false
+		c.AllowCustomScopes = &allowCustomScopes
+	}
+
 	messageTemplate := defaultMessageTemplate
 	if c.MessageTemplate != nil {
 		messageTemplate, err = config.ConvertTemplate(*c.MessageTemplate)
@@ -116,14 +133,18 @@ func loadConfig(fs afero.Fs) (LoadConfigReturn, error) {
 	return LoadConfigReturn{
 		MessageTemplate:           messageTemplate,
 		MessageWithTicketTemplate: messageWithTicketTemplate,
-		Prefixes:                  c.Prefixes.Options(),
+		SelectablePrefixes:        c.Prefixes.Options(),
+		Prefixes:                  c.Prefixes.Strings(),
 		Coauthors:                 c.Coauthors.Options(),
 		Boards:                    c.Boards.Options(),
 		Scopes:                    c.Scopes.Options(),
+		ScopeStrings:              c.Scopes.Strings(),
 		CommitTitleCharLimit:      *c.CommitTitleCharLimit,
 		CommitBodyCharLimit:       *c.CommitBodyCharLimit,
 		CommitBodyLineLength:      *c.CommitBodyLineLength,
 		ShowIntro:                 *c.ShowIntro,
 		ReadContributorsFromGit:   *c.ReadContributorsFromGit,
+		AllowCustomPrefixes:       *c.AllowCustomPrefixes,
+		AllowCustomScopes:         *c.AllowCustomScopes,
 	}, nil
 }

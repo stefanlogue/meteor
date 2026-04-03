@@ -68,7 +68,8 @@ The content should be in the following format:
   "commitTitleCharLimit": 60,
   "commitBodyCharLimit": 60,
   "commitBodyLineLength": 40,
-  "readContributorsFromGit": true
+  "readContributorsFromGit": true,
+  "allowCustomPrefixes": true
 }
 ```
 
@@ -92,7 +93,8 @@ If you want to define a set of predefined scopes to select from rather than
 typing the scope, a `scopes` array can be added to your config:
 
 > [!WARNING]
-> Setting predefined scopes removes the ability to type the scope
+> Setting predefined scopes removes the ability to type the scope, unless
+> `allowCustomScopes` is set to `true` in your config file
 
 ```json
 {
