@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
+
 	"github.com/stefanlogue/meteor/internal/util"
 	cfg "github.com/stefanlogue/meteor/pkg/config"
 
@@ -31,6 +32,7 @@ type Commit struct {
 }
 
 var (
+	pushAfterCommit    bool
 	version            = "dev"
 	debugMode          bool
 	skipIntro          bool
@@ -50,6 +52,7 @@ func init() {
 	flag.BoolP(AsGitEditor, "e", false, "used as GIT_EDITOR")
 	flag.BoolVarP(&skipIntro, "skip-intro", "s", false, "skip intro splash")
 	flag.BoolVarP(&debugMode, "debug", "D", false, "enable debug mode")
+	flag.BoolVarP(&pushAfterCommit, "push", "p", false, "push after committing")
 	flag.BoolVarP(&skipBreakingChange, "skip-breaking-change", "b", false, "skip breaking change prompt")
 	flag.Parse()
 	if util.IsFlagPassed("version") {
@@ -354,7 +357,7 @@ func main() {
 	}
 
 	if doesWantToCommit {
-		err := commit(rawCommitCommand)
+		err := executeGitCommand(rawCommitCommand)
 		if err != nil {
 			writeToClipboard(printableCommitCommand)
 			fail(
@@ -363,6 +366,17 @@ func main() {
 				color.YellowString("To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):"),
 				color.BlueString(printableCommitCommand),
 			)
+		}
+		if config.PushAfterCommit || pushAfterCommit {
+			err := push(args)
+			if err != nil {
+				fail(
+					"\n%s\n%s\n\n%s\n\n",
+					color.RedString(fmt.Sprintf("It looks like the push failed.\nError: %s", err)),
+					color.YellowString("To run it again without going through meteor's wizard, simply run the following command (I've copied it to your clipboard!):"),
+					color.BlueString(printableCommitCommand),
+				)
+			}
 		}
 	} else {
 		writeToClipboard(printableCommitCommand)

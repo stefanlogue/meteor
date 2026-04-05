@@ -89,8 +89,14 @@ func getComitters(osArgs []string) ([]string, error) {
 	return result, nil
 }
 
-// commit commits the changes to git
-func commit(command []string) error {
+// push pushes the current branch to the remote
+func push(osArgs []string) error {
+	args := append([]string{"push"}, osArgs...)
+	return executeGitCommand(args)
+}
+
+// executeGitCommand commits the changes to git
+func executeGitCommand(command []string) error {
 	cmd := exec.Command("git", command...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
