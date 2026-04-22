@@ -1,6 +1,6 @@
 package util
 
-import "flag"
+import flag "github.com/spf13/pflag"
 
 func IsFlagPassed(name string) bool {
 	found := false
